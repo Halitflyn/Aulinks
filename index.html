@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+  <meta charset="UTF-8">
+  <title>Розклад занять ІВ-12</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      background: #f4f6fa;
+      color: #222;
+    }
+    h1 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .day {
+      margin-bottom: 40px;
+    }
+    .day h2 {
+      background: #3f51b5;
+      color: white;
+      padding: 10px;
+      border-radius: 12px;
+    }
+    .cards {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
+    }
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      padding: 15px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+    .card h3 {
+      margin: 0 0 10px;
+      font-size: 18px;
+      color: #3f51b5;
+    }
+    .card p {
+      margin: 5px 0;
+      font-size: 14px;
+    }
+    .card .time {
+      color: #3f51b5; /* Синій для часу */
+    }
+    .card .teacher-room {
+      color: #d4a017; /* Темно-жовтий для викладача та аудиторії */
+    }
+    .empty {
+      background: #e0e0e0;
+      color: #666;
+      text-align: center;
+      font-style: italic;
+    }
+    .subgroup {
+      border-top: 1px dashed #ccc;
+      margin-top: 8px;
+      padding-top: 5px;
+      padding: 10px;
+      border-radius: 8px;
+      margin: 5px 0;
+      font-size: 0.9em;
+    }
+    .subgroup.numden {
+      background: #e8ecef; /* Темніший фон для підгруп із чисельником/знаменником */
+    }
+    .subgroup .subgroup-label {
+      color: #28a745; /* Зелений для Підгрупа 1 */
+    }
+    .subgroup .subgroup-label.sub2 {
+      color: #9c27b0; /* Яскраво-фіолетовий для Підгрупа 2 */
+    }
+    .subgroup .num-label {
+      color: #28a745; /* Зелений для (Чисельник) */
+    }
+    .subgroup .den-label {
+      color: #9c27b0; /* Яскраво-фіолетовий для (Знаменник) */
+    }
+  </style>
+</head>
+<body>
+  <h1>Розклад занять (ІВ-12, 1 семестр)</h1>
+  <!-- Понеділок -->
+  <div class="day">
+    <h2>Понеділок</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>1 пара</h3>
+        <p><b>Фізичне виховання</b> (Практична)</p>
+        <p class="time">08:30 – 09:50</p>
+      </div>
+      <div class="card empty">
+        <h3>2 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card">
+        <h3>3 пара</h3>
+        <p><b>Фізика</b> (Лекція)</p>
+        <p class="teacher-room">Товстюк Н.К., 139 Гол. н.к.</p>
+        <p class="time">11:40 – 13:00</p>
+      </div>
+      <div class="card">
+        <h3>4 пара</h3>
+        <p><b>Українська мова</b> (Практична)</p>
+        <p class="teacher-room">Ковалів С.В., 713 V н.к.</p>
+        <p class="time">13:15 – 14:35</p>
+      </div>
+      <div class="card empty">
+        <h3>5 пара</h3>
+        <p>Немає</p>
+      </div>
+    </div>
+  </div>
+  <!-- Вівторок -->
+  <div class="day">
+    <h2>Вівторок</h2>
+    <div class="cards">
+      <div class="card empty">
+        <h3>1 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card">
+        <h3>2 пара</h3>
+        <div class="subgroup numden">
+          <p class="subgroup-label">Підгрупа 1 <span class="num-label">(Чисельник)</span></p>
+          <p><b>Програмування</b> (Лабораторна)</p>
+          <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
+        </div>
+        <div class="subgroup numden">
+          <p class="subgroup-label sub2">Підгрупа 2 <span class="den-label">(Знаменник)</span></p>
+          <p><b>Програмування</b> (Лабораторна)</p>
+          <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
+        </div>
+        <p class="time">10:05 – 11:25</p>
+      </div>
+      <div class="card">
+        <h3>3 пара</h3>
+        <p><b>Програмування</b> (Лекція)</p>
+        <p class="teacher-room">Озгович А.І., 711 V н.к.</p>
+        <p class="time">11:40 – 13:00</p>
+      </div>
+      <div class="card">
+        <h3>4 пара</h3>
+        <p><b>Програмування</b> (Практична)</p>
+        <p class="teacher-room">Озгович А.І., 711 V н.к.</p>
+        <p class="time">13:15 – 14:35</p>
+      </div>
+      <div class="card">
+        <h3>5 пара</h3>
+        <div class="subgroup">
+          <p class="subgroup-label">Підгрупа 1</p>
+          <p><b>Іноземна мова</b> (Практична)</p>
+          <p class="teacher-room">Колесник Г.О., 027 VII н.к.</p>
+        </div>
+        <div class="subgroup">
+          <p class="subgroup-label sub2">Підгрупа 2</p>
+          <p><b>Іноземна мова</b> (Практична)</p>
+          <p class="teacher-room">Колесник Г.О., 015 VII н.к.</p>
+        </div>
+        <p class="time">14:50 – 16:10</p>
+      </div>
+    </div>
+  </div>
+  <!-- Середа -->
+  <div class="day">
+    <h2>Середа</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>1 пара</h3>
+        <div class="subgroup">
+          <p class="subgroup-label sub2">Підгрупа 2</p>
+          <p><b>Програмування</b> (Лабораторна)</p>
+          <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
+        </div>
+        <p class="time">08:30 – 09:50</p>
+      </div>
+      <div class="card">
+        <h3>2 пара</h3>
+        <p><b>Вища математика</b> (Лекція)</p>
+        <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
+        <p class="time">10:05 – 11:25</p>
+      </div>
+      <div class="card">
+        <h3>3 пара</h3>
+        <div class="subgroup numden">
+          <p class="num-label">Чисельник</p>
+          <p><b>Фізика</b> (Практична)</p>
+        </div>
+        <div class="subgroup numden">
+          <p class="den-label">Знаменник</p>
+          <p><b>Вища математика</b> (Практична)</p>
+          <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
+        </div>
+        <p class="time">11:40 – 13:00</p>
+      </div>
+      <div class="card empty">
+        <h3>4 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card empty">
+        <h3>5 пара</h3>
+        <p>Немає</p>
+      </div>
+    </div>
+  </div>
+  <!-- Четвер -->
+  <div class="day">
+    <h2>Четвер</h2>
+    <div class="cards">
+      <div class="card empty">
+        <h3>1 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card">
+        <h3>2 пара</h3>
+        <div class="subgroup">
+          <p class="subgroup-label">Підгрупа 1</p>
+          <p><b>Програмування</b> (Лабораторна)</p>
+          <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
+        </div>
+        <div class="subgroup numden">
+          <p class="subgroup-label sub2">Підгрупа 2 <span class="num-label">(Чисельник)</span></p>
+          <p><b>Інженерна та комп`ютерна графіка </b> (Лабораторна)</p>
+          <p class="teacher-room">Строган О.І., 108 IV н.к.</p>
+        </div>
+        <p class="time">10:05 – 11:25</p>
+      </div>
+      <div class="card">
+        <h3>3 пара</h3>
+        <div class="subgroup numden">
+          <p class="num-label">Чисельник</p>
+          <p><b>Інженерна та комп`ютерна графіка</b> (Лекція)</p>
+          <p class="teacher-room">Шевчук А.О., 111 IV н.к.</p>
+        </div>
+        <div class="subgroup numden">
+          <p class="den-label">Знаменник</p>
+          <p><b>Вища математика</b> (Лекція)</p>
+          <p class="teacher-room">Кунинець А.В.,  713 V н.к.</p>
+        </div>
+        <p class="time">11:40 – 13:00</p>
+      </div>
+      <div class="card">
+        <h3>4 пара</h3>
+        <div class="subgroup numden">
+          <p class="subgroup-label">Підгрупа 1 <span class="num-label">(Чисельник)</span></p>
+          <p><b>Інженерна та комп`ютерна графіка</b> (Лабораторна)</p>
+          <p class="teacher-room">Комаров С.М., 109 IV н.к.</p>
+        </div>
+        <p class="time">13:15 – 14:35</p>
+      </div>
+      <div class="card empty">
+        <h3>5 пара</h3>
+        <p>Немає</p>
+      </div>
+    </div>
+  </div>
+  <!-- П’ятниця -->
+  <div class="day">
+    <h2>П’ятниця</h2>
+    <div class="cards">
+      <div class="card">
+        <h3>1 пара</h3>
+        <div class="subgroup">
+          <p class="subgroup-label">Підгрупа 1</p>
+          <p><b>Фізика</b> (Лабораторна)</p>
+          <p class="teacher-room">Товстюк Н.К., ел.2лаб Гол. н.к., мол.2лаб Гол. н.к.</p>
+        </div>
+        <div class="subgroup">
+          <p class="subgroup-label sub2">Підгрупа 2</p>
+          <p><b>Фізика</b> (Лабораторна)</p>
+          <p class="teacher-room">Мороз І.Є., ел.2лаб Гол. н.к., мол.2лаб Гол. н.к.</p>
+        </div>
+        <p class="time">08:30 – 09:50</p>
+      </div>
+      <div class="card">
+        <h3>2 пара</h3>
+        <p><b>Вища математика</b> (Практична)</p>
+        <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
+        <p class="time">10:05 – 11:25</p>
+      </div>
+      <div class="card empty">
+        <h3>3 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card empty">
+        <h3>4 пара</h3>
+        <p>Немає</p>
+      </div>
+      <div class="card empty">
+        <h3>5 пара</h3>
+        <p>Немає</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
