@@ -3,7 +3,13 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#3f51b5">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#333">
   <title>Розклад занять ІВ-12</title>
+  <!-- Favicon з емодзі 📅 -->
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
+  <!-- PWA Manifest вбудований як data URI -->
+  <link rel="manifest" href="data:application/json;base64,CnsKICAibmFtZSI6ICLQoNC+0LfQutC70LDQtCDQt9Cw0L3Rj9GC0Ywg0IbQki0xMiIsCiAgInNob3J0X25hbWUiOiAi0KDQvtC30LrQu9Cw0LQg0IbQki0xMiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPVwiaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmdcIiB2aWV3Qm94PVwiMCAwIDEwMCAxMDBcIj48dGV4dCB5PVwiLjllbVwiIGZvbnQtc2l6ZT1cIjkwXCI+8J+ThTwvdGV4dD48L3N2Zz4iLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9CiAgXSwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJmdWxsc2NyZWVuIiwKICAidGhlbWVfY29sb3IiOiAiIzNmNTFiNSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y0ZjZmYSIKfQo=">
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -16,10 +22,6 @@
     body.dark-mode {
       background: #222;
       color: #fff;
-    }
-    h1 {
-      text-align: center;
-      margin-bottom: 20px;
     }
     nav {
       position: sticky;
@@ -304,7 +306,7 @@
         background: white;
         color: black;
       }
-      nav, .filters, .theme-toggle {
+      nav, .filters, .theme-toggle, footer {
         display: none;
       }
       .card {
@@ -316,12 +318,29 @@
         break-before: page;
       }
     }
+    /* Стилі для футера */
+    footer {
+      margin-top: 60px;
+      padding: 30px;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+    body.dark-mode footer {
+      background: #333;
+    }
+    footer h1 {
+      margin-bottom: 20px;
+      color: #3f51b5;
+    }
+    body.dark-mode footer h1 {
+      color: #bbdefb;
+    }
   </style>
 </head>
 <body>
   <button class="theme-toggle" onclick="toggleDarkMode()">🌙</button>
-
-  <h1>Розклад занять (ІВ-12, 1 семестр)</h1>
 
   <nav>
     <a onclick="scrollToDay('monday')" data-full="Понеділок" data-short="По">Понеділок</a>
@@ -330,19 +349,6 @@
     <a onclick="scrollToDay('thursday')" data-full="Четвер" data-short="Ч">Четвер</a>
     <a onclick="scrollToDay('friday')" data-full="П’ятниця" data-short="Пя">П’ятниця</a>
   </nav>
-
-  <div class="filters">
-    <label>Підгрупа: </label>
-    <select id="subgroupFilter" onchange="filterSchedule()">
-      <option value="all">Усі</option>
-      <option value="sub1">Підгрупа 1</option>
-      <option value="sub2">Підгрупа 2</option>
-    </select>
-    <label style="margin-left: 20px;">
-      <input type="checkbox" id="showAllWeeks" onchange="filterSchedule()"> Показати всі тижні
-    </label>
-    <span id="currentWeekInfo"></span>
-  </div>
 
   <!-- Понеділок -->
   <section class="day" id="monday">
@@ -561,6 +567,23 @@
       </article>
     </div>
   </section>
+
+  <!-- Футер з заголовком і фільтрами -->
+  <footer>
+    <h1>Розклад занять (ІВ-12, 1 семестр)</h1>
+    <div class="filters">
+      <label>Підгрупа: </label>
+      <select id="subgroupFilter" onchange="filterSchedule()">
+        <option value="all">Усі</option>
+        <option value="sub1">Підгрупа 1</option>
+        <option value="sub2">Підгрупа 2</option>
+      </select>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="showAllWeeks" onchange="filterSchedule()"> Показати всі тижні
+      </label>
+      <span id="currentWeekInfo"></span>
+    </div>
+  </footer>
 
   <script>
     // Функції для cookies
