@@ -30,20 +30,43 @@
       z-index: 100;
       border-bottom: 1px solid #ddd;
       transition: background 0.3s;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 10px; /* Для роздільників на десктопі */
     }
     body.dark-mode nav {
       background: #333;
       border-bottom: 1px solid #555;
     }
     nav a {
-      margin: 0 10px;
       text-decoration: none;
       color: #3f51b5;
       font-weight: bold;
       cursor: pointer;
+      white-space: nowrap;
     }
     nav a:hover {
       text-decoration: underline;
+    }
+    /* Десктоп: додати | після кожного a, крім останнього */
+    @media (min-width: 601px) {
+      nav a:not(:last-child)::after {
+        content: ' | ';
+        color: #3f51b5;
+      }
+    }
+    /* Мобільна версія: рівномірний розподіл, скорочені назви */
+    @media (max-width: 600px) {
+      nav {
+        padding: 5px;
+        gap: 0; /* Без gap для space-evenly */
+        justify-content: space-evenly; /* Рівномірний розподіл: По ліворуч, В між По і С, С центр, Ч між С і Пя, Пя праворуч */
+      }
+      nav a {
+        font-size: 14px; /* Трохи менший шрифт */
+        flex-shrink: 0; /* Не стискати */
+      }
     }
     .filters {
       margin-bottom: 20px;
@@ -274,10 +297,6 @@
         display: block;
         margin: 10px auto;
       }
-      nav a {
-        display: block;
-        margin: 5px 0;
-      }
     }
     /* Друк */
     @media print {
@@ -305,11 +324,11 @@
   <h1>Розклад занять (ІВ-12, 1 семестр)</h1>
 
   <nav>
-    <a onclick="scrollToDay('monday')">Понеділок</a> |
-    <a onclick="scrollToDay('tuesday')">Вівторок</a> |
-    <a onclick="scrollToDay('wednesday')">Середа</a> |
-    <a onclick="scrollToDay('thursday')">Четвер</a> |
-    <a onclick="scrollToDay('friday')">П’ятниця</a>
+    <a onclick="scrollToDay('monday')" data-full="Понеділок" data-short="По">Понеділок</a>
+    <a onclick="scrollToDay('tuesday')" data-full="Вівторок" data-short="В">Вівторок</a>
+    <a onclick="scrollToDay('wednesday')" data-full="Середа" data-short="С">Середа</a>
+    <a onclick="scrollToDay('thursday')" data-full="Четвер" data-short="Ч">Четвер</a>
+    <a onclick="scrollToDay('friday')" data-full="П’ятниця" data-short="Пя">П’ятниця</a>
   </nav>
 
   <div class="filters">
@@ -610,6 +629,19 @@
       }
     }
 
+    // Оновлення тексту навігації для мобільного
+    function updateNavText() {
+      const isMobile = window.innerWidth <= 600;
+      const links = document.querySelectorAll('nav a');
+      links.forEach(link => {
+        if (isMobile) {
+          link.textContent = link.dataset.short;
+        } else {
+          link.textContent = link.dataset.full;
+        }
+      });
+    }
+
     // Темна тема
     function toggleDarkMode() {
       const isDark = document.body.classList.toggle('dark-mode');
@@ -792,9 +824,13 @@
     filterSchedule();
     updateWeekInfo();
     highlightCurrentPair(); // Початкове виділення
+    updateNavText(); // Оновити текст навігації
 
     // Оновлювати кожну хвилину
     setInterval(highlightCurrentPair, 60000); // Кожну хвилину
+
+    // Обробка зміни розміру екрану для навігації
+    window.addEventListener('resize', updateNavText);
   </script>
 </body>
 </html>
