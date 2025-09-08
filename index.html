@@ -60,7 +60,7 @@
     }
     /* Мобільна версія: рівномірний розподіл, скорочені назви */
     @media (max-width: 600px) {
-      nav {
+ subtropical: nav {
         padding: 5px;
         gap: 0; /* Без gap для space-evenly */
         justify-content: space-evenly; /* Рівномірний розподіл: По ліворуч, В між По і С, С центр, Ч між С і Пя, Пя праворуч */
@@ -104,7 +104,7 @@
     }
     .theme-toggle {
       position: fixed;
-      top: 20px;
+      top: 60px; /* Moved lower to avoid overlap with nav */
       right: 20px;
       background: #3f51b5;
       color: white;
@@ -307,6 +307,9 @@
       .filters select, .filters input[type="checkbox"] {
         display: block;
         margin: 10px auto;
+      }
+      .theme-toggle {
+        top: 50px; /* Adjusted for mobile */
       }
     }
     /* Друк */
@@ -605,6 +608,9 @@
       <label style="margin-left: 20px;">
         <input type="checkbox" id="showAllWeeks" onchange="filterSchedule()"> Показати всі тижні
       </label>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="hideEmptyLessons" onchange="filterSchedule()"> Приховати порожні пари
+      </label>
       <span id="currentWeekInfo"></span>
     </div>
   </footer>
@@ -717,14 +723,22 @@
       if (showAll === 'true') {
         document.getElementById('showAllWeeks').checked = true;
       }
+
+      // Приховати порожні пари
+      const hideEmpty = getCookie('hideEmptyLessons');
+      if (hideEmpty === 'true') {
+        document.getElementById('hideEmptyLessons').checked = true;
+      }
     }
 
     // Зберегти налаштування
     function saveSettings() {
       const subgroup = document.getElementById('subgroupFilter').value;
       const showAll = document.getElementById('showAllWeeks').checked;
+      const hideEmpty = document.getElementById('hideEmptyLessons').checked;
       setCookie('subgroupFilter', subgroup);
       setCookie('showAllWeeks', showAll ? 'true' : 'false');
+      setCookie('hideEmptyLessons', hideEmpty ? 'true' : 'false');
     }
 
     // Поточний день
@@ -747,6 +761,7 @@
     function filterSchedule() {
       const subgroup = document.getElementById('subgroupFilter').value;
       const showAll = document.getElementById('showAllWeeks').checked;
+      const hideEmpty = document.getElementById('hideEmptyLessons').checked;
       const currentType = getCurrentType();
       const cards = document.querySelectorAll('.card');
 
@@ -755,13 +770,17 @@
         let hasVisibleContent = false;
 
         if (subgroups.length === 0) {
-          // Картки без підгруп завжди видимі
-          card.style.display = 'block';
-          const emptyMsg = card.querySelector('.empty-message');
-          if (emptyMsg) emptyMsg.style.display = 'none';
-          const timeEl = card.querySelector('.time');
-          if (timeEl) timeEl.style.display = 'block';
-          card.classList.remove('empty');
+          // Картки без підгруп
+          const isEmpty = card.classList.contains('empty');
+          if (hideEmpty && isEmpty) {
+            card.style.display = 'none';
+          } else {
+            card.style.display = 'block';
+            const emptyMsg = card.querySelector('.empty-message');
+            if (emptyMsg) emptyMsg.style.display = isEmpty ? 'block' : 'none';
+            const timeEl = card.querySelector('.time');
+            if (timeEl) timeEl.style.display = isEmpty ? 'none' : 'block';
+          }
         } else {
           // Сховати всі subgroups спочатку
           subgroups.forEach(sub => sub.style.display = 'none');
@@ -792,6 +811,7 @@
             if (emptyMsg) emptyMsg.style.display = 'none';
             if (timeEl) timeEl.style.display = 'block';
             card.classList.remove('empty');
+            card.style.display = 'block';
           } else {
             subgroups.forEach(sub => sub.style.display = 'none');
             if (timeEl) timeEl.style.display = 'none';
@@ -804,14 +824,8 @@
               card.appendChild(newEmpty);
             }
             card.classList.add('empty');
+            card.style.display = hideEmpty ? 'none' : 'block';
           }
-
-          card.style.display = 'block';
-        }
-
-        // Порожні картки завжди видимі
-        if (card.classList.contains('empty') && subgroups.length === 0) {
-          card.style.display = 'block';
         }
       });
 
@@ -890,7 +904,7 @@
 
       // Встановити наступну, якщо < 15 хв
       if (upcomingCard && minDiffToStart <= 15) {
-        upcomingCard.classList.add('upcoming');
+ක: upcomingCard.classList.add('upcoming');
       }
     }
 
