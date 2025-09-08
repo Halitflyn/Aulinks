@@ -237,6 +237,15 @@
       background: #444;
       color: #aaa;
     }
+    .empty-message {
+      text-align: center;
+      font-style: italic;
+      color: #666;
+      margin: 0;
+    }
+    body.dark-mode .empty-message {
+      color: #aaa;
+    }
     .subgroup {
       border-top: 1px dashed #ccc;
       margin-top: 8px;
@@ -359,6 +368,7 @@
         <p><b>Фізичне виховання</b> (Практична)</p>
         <p class="teacher-room">ХХІІ н.к.</p>
         <p class="time">08:00 – 09:20</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card empty">
         <h3>2 пара</h3>
@@ -369,12 +379,14 @@
         <p><b>Фізика</b> (Лекція)</p>
         <p class="teacher-room">Товстюк Н.К., 139 Гол. н.к.</p>
         <p class="time">11:40 – 13:00</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card practical">
         <h3>4 пара</h3>
         <p><b>Українська мова</b> (Практична)</p>
         <p class="teacher-room">Ковалів С.В., 713 V н.к.</p>
         <p class="time">13:15 – 14:35</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card empty">
         <h3>5 пара</h3>
@@ -404,18 +416,21 @@
           <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
         </div>
         <p class="time">10:05 – 11:25</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card lecture">
         <h3>3 пара</h3>
         <p><b>Програмування</b> (Лекція)</p>
         <p class="teacher-room">Озгович А.І., 711 V н.к.</p>
         <p class="time">11:40 – 13:00</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card practical">
         <h3>4 пара</h3>
         <p><b>Програмування</b> (Практична)</p>
         <p class="teacher-room">Озгович А.І., 711 V н.к.</p>
         <p class="time">13:15 – 14:35</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card practical">
         <h3>5 пара</h3>
@@ -430,6 +445,7 @@
           <p class="teacher-room">Колесник Г.О., 015 VII н.к.</p>
         </div>
         <p class="time">14:50 – 16:10</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
     </div>
   </section>
@@ -446,12 +462,14 @@
           <p class="teacher-room">Сегеда О.В., 702 V н.к.</p>
         </div>
         <p class="time">08:30 – 09:50</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card lecture">
         <h3>2 пара</h3>
         <p><b>Вища математика</b> (Лекція)</p>
         <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
         <p class="time">10:05 – 11:25</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card practical">
         <h3>3 пара</h3>
@@ -465,6 +483,7 @@
           <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
         </div>
         <p class="time">11:40 – 13:00</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card empty">
         <h3>4 пара</h3>
@@ -498,6 +517,7 @@
           <p class="teacher-room">Строган О.І., 108 IV н.к.</p>
         </div>
         <p class="time">10:05 – 11:25</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card lecture">
         <h3>3 пара</h3>
@@ -512,6 +532,7 @@
           <p class="teacher-room">Кунинець А.В.,  713 V н.к.</p>
         </div>
         <p class="time">11:40 – 13:00</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card lab">
         <h3>4 пара</h3>
@@ -521,6 +542,7 @@
           <p class="teacher-room">Комаров С.М., 109 IV н.к.</p>
         </div>
         <p class="time">13:15 – 14:35</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card empty">
         <h3>5 пара</h3>
@@ -546,12 +568,14 @@
           <p class="teacher-room">Мороз І.Є., ел.2лаб Гол. н.к., мол.2лаб Гол. н.к.</p>
         </div>
         <p class="time">08:30 – 09:50</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card practical">
         <h3>2 пара</h3>
         <p><b>Вища математика</b> (Практична)</p>
         <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
         <p class="time">10:05 – 11:25</p>
+        <p class="empty-message" style="display:none">Немає</p>
       </article>
       <article class="card empty">
         <h3>3 пара</h3>
@@ -733,8 +757,15 @@
         if (subgroups.length === 0) {
           // Картки без підгруп завжди видимі
           card.style.display = 'block';
-          hasVisibleContent = true;
+          const emptyMsg = card.querySelector('.empty-message');
+          if (emptyMsg) emptyMsg.style.display = 'none';
+          const timeEl = card.querySelector('.time');
+          if (timeEl) timeEl.style.display = 'block';
+          card.classList.remove('empty');
         } else {
+          // Сховати всі subgroups спочатку
+          subgroups.forEach(sub => sub.style.display = 'none');
+
           subgroups.forEach(sub => {
             let visible = true;
 
@@ -754,11 +785,32 @@
             if (visible) hasVisibleContent = true;
           });
 
-          card.style.display = hasVisibleContent ? 'block' : 'none';
+          const emptyMsg = card.querySelector('.empty-message');
+          const timeEl = card.querySelector('.time');
+
+          if (hasVisibleContent) {
+            if (emptyMsg) emptyMsg.style.display = 'none';
+            if (timeEl) timeEl.style.display = 'block';
+            card.classList.remove('empty');
+          } else {
+            subgroups.forEach(sub => sub.style.display = 'none');
+            if (timeEl) timeEl.style.display = 'none';
+            if (emptyMsg) emptyMsg.style.display = 'block';
+            else {
+              const newEmpty = document.createElement('p');
+              newEmpty.className = 'empty-message';
+              newEmpty.textContent = 'Немає';
+              newEmpty.style.display = 'block';
+              card.appendChild(newEmpty);
+            }
+            card.classList.add('empty');
+          }
+
+          card.style.display = 'block';
         }
 
         // Порожні картки завжди видимі
-        if (card.classList.contains('empty')) {
+        if (card.classList.contains('empty') && subgroups.length === 0) {
           card.style.display = 'block';
         }
       });
