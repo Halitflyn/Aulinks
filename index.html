@@ -60,7 +60,7 @@
     }
     /* Мобільна версія: рівномірний розподіл, скорочені назви */
     @media (max-width: 600px) {
- subtropical: nav {
+      nav {
         padding: 5px;
         gap: 0; /* Без gap для space-evenly */
         justify-content: space-evenly; /* Рівномірний розподіл: По ліворуч, В між По і С, С центр, Ч між С і Пя, Пя праворуч */
@@ -791,7 +791,7 @@
             // Фільтр підгрупи
             if (subgroup !== 'all') {
               const subType = sub.classList.contains('sub1') ? 'sub1' : (sub.classList.contains('sub2') ? 'sub2' : null);
-              if (subType !== subgroup) visible = false;
+              if (subType !== null && subType !== subgroup) visible = false;
             }
 
             // Фільтр тижня
@@ -904,7 +904,7 @@
 
       // Встановити наступну, якщо < 15 хв
       if (upcomingCard && minDiffToStart <= 15) {
-ක: upcomingCard.classList.add('upcoming');
+        upcomingCard.classList.add('upcoming');
       }
     }
 
@@ -921,8 +921,8 @@
     // Обробка зміни розміру екрану для навігації
     window.addEventListener('resize', updateNavText);
   </script>
-  	<footer style="text-align: center; padding: 10px; background: #f1f1f1; margin-top: 20px;">
- 	 <p>Сайт створив Halitflyn © 2025</p>
-	</footer>
+  <footer style="text-align: center; padding: 10px; background: #f1f1f1; margin-top: 20px;">
+    <p>Сайт створив Halitflyn © 2025</p>
+  </footer>
 </body>
 </html>
