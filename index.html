@@ -479,6 +479,7 @@
         <div class="subgroup numden num">
           <p class="num-label">Чисельник</p>
           <p><b>Фізика</b> (Практична)</p>
+          <p class="teacher-room">Кунинець А.В., 713 V н.к.</p>
         </div>
         <div class="subgroup numden den">
           <p class="den-label">Знаменник</p>
@@ -645,9 +646,13 @@
 
     function getCurrentType() {
       const now = new Date();
-      const week = getISOWeek(now);
-      const isOddWeek = week % 2 === 1;
-      return isOddWeek ? 'den' : 'num'; // 37 odd -> den
+      const startSemester = new Date('2025-09-08');
+      const weekStart = getISOWeek(startSemester); // 37-й тиждень
+      const currentWeek = getISOWeek(now);
+      
+      // Логіка: непарні тижні (починаючи з 37) - Чисельник, парні - Знаменник
+      const isNumerator = (currentWeek % 2) !== 0;
+      return isNumerator ? 'num' : 'den';
     }
 
     function getWeekDates(date) {
