@@ -41,17 +41,37 @@
       background: #333;
       border-bottom: 1px solid #555;
     }
+    body.dark-mode nav a {
+      color: #fff;
+    }
+    nav a.active-day {
+      background: #28a745;
+      color: #fff !important;
+      padding: 4px 8px;
+      border-radius: 8px;
+    }
+    body.dark-mode nav a.active-day {
+      background: #2e7d32;
+      color: #fff !important;
+    }
     nav a {
       text-decoration: none;
       color: #3f51b5;
       font-weight: bold;
       cursor: pointer;
       white-space: nowrap;
+      -webkit-user-select: none;
+      -moz-user-select: none;
+      -ms-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
     }
     nav a:hover {
       text-decoration: underline;
     }
-    /* Десктоп: додати | після кожного a, крім останнього */
+    /* Десктоп: додати | після кофжного a, крім останнього */
     @media (min-width: 601px) {
       nav a:not(:last-child)::after {
         content: ' | ';
@@ -102,22 +122,39 @@
     body.dark-mode #currentWeekInfo {
       color: #bbdefb;
     }
+    /* Початковий вигляд — паличка */
     .theme-toggle {
       position: fixed;
-      top: 60px; /* Moved lower to avoid overlap with nav */
-      right: 20px;
-      background: #3f51b5;
-      color: white;
+      top: 120px;
+      right: 0;
+      width: 12px;
+      height: 60px;
+      background: #9c27b0;
       border: none;
-      padding: 10px;
-      border-radius: 50%;
+      border-radius: 8px 0 0 8px;
       cursor: pointer;
-      z-index: 100;
-      transition: background 0.3s;
+      z-index: 200;
+      transition: all 0.5s ease;
+      overflow: hidden;
+      padding: 0;
+      color: white;
+      font-weight: bold;
+      font-size: 14px;
     }
-    body.dark-mode .theme-toggle {
-      background: #ff9800;
+
+    /* Коли стає круглою кнопкою */
+    .theme-toggle.expanded {
+      right: 20px;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 60px;
     }
+
+    .theme-toggle.green { background: #28a745; }
+    .theme-toggle.yellow { background: #ffc107; color: #222; }
+    .theme-toggle.purple { background: #9c27b0; }
     .day {
       margin-bottom: 40px;
     }
@@ -308,9 +345,7 @@
         display: block;
         margin: 10px auto;
       }
-      .theme-toggle {
-        top: 50px; /* Adjusted for mobile */
-      }
+      .theme-toggle { top: 100px; }
     }
     /* Друк */
     @media print {
@@ -341,6 +376,7 @@
     }
     body.dark-mode footer {
       background: #333;
+      color: #fff;
     }
     footer h1 {
       margin-bottom: 20px;
@@ -352,14 +388,14 @@
   </style>
 </head>
 <body>
-  <button class="theme-toggle" onclick="toggleDarkMode()">🌙</button>
+  <button class="theme-toggle purple" id="themeBtn"></button>
 
   <nav>
-    <a onclick="scrollToDay('monday')" data-full="Понеділок" data-short="По">Понеділок</a>
-    <a onclick="scrollToDay('tuesday')" data-full="Вівторок" data-short="В">Вівторок</a>
-    <a onclick="scrollToDay('wednesday')" data-full="Середа" data-short="С">Середа</a>
-    <a onclick="scrollToDay('thursday')" data-full="Четвер" data-short="Ч">Четвер</a>
-    <a onclick="scrollToDay('friday')" data-full="П’ятниця" data-short="Пя">П’ятниця</a>
+    <a href="#" onclick="scrollToDay('monday'); return false;" data-full="Понеділок" data-short="ПН">Понеділок</a>
+    <a href="#" onclick="scrollToDay('tuesday'); return false;" data-full="Вівторок" data-short="ВТ">Вівторок</a>
+    <a href="#" onclick="scrollToDay('wednesday'); return false;" data-full="Середа" data-short="СР">Середа</a>
+    <a href="#" onclick="scrollToDay('thursday'); return false;" data-full="Четвер" data-short="ЧТ">Четвер</a>
+    <a href="#" onclick="scrollToDay('friday'); return false;" data-full="П’ятниця" data-short="ПТ">П’ятниця</a>
   </nav>
 
   <!-- Понеділок -->
@@ -616,317 +652,8 @@
     </div>
   </footer>
 
-  <script>
-    // Функції для cookies
-    function setCookie(name, value, days = 30) {
-      const expires = new Date();
-      expires.setTime(expires.getTime() + days * 24 * 60 * 60 * 1000);
-      document.cookie = `${name}=${encodeURIComponent(value)};expires=${expires.toUTCString()};path=/`;
-    }
-
-    function getCookie(name) {
-      const nameEQ = `${name}=`;
-      const ca = document.cookie.split(';');
-      for (let i = 0; i < ca.length; i++) {
-        let c = ca[i];
-        while (c.charAt(0) === ' ') c = c.substring(1, c.length);
-        if (c.indexOf(nameEQ) === 0) return decodeURIComponent(c.substring(nameEQ.length, c.length));
-      }
-      return null;
-    }
-
-    // Функції для тижнів
-    function getISOWeek(date) {
-      const d = new Date(date.getTime());
-      d.setHours(0, 0, 0, 0);
-      d.setDate(d.getDate() + 3 - (d.getDay() + 6) % 7);
-      const week1 = new Date(d.getFullYear(), 0, 4);
-      return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-    }
-
-    function getCurrentType() {
-      const now = new Date();
-      const startSemester = new Date('2025-09-08');
-      const weekStart = getISOWeek(startSemester); // 37-й тиждень
-      const currentWeek = getISOWeek(now);
-      
-      // Логіка: непарні тижні (починаючи з 37) - Чисельник, парні - Знаменник
-      const isNumerator = (currentWeek % 2) !== 0;
-      return isNumerator ? 'num' : 'den';
-    }
-
-    function getWeekDates(date) {
-      const d = new Date(date);
-      const day = d.getDay();
-      const diff = d.getDate() - day + (day === 0 ? -6 : 1); // Monday
-      const monday = new Date(d.setDate(diff));
-      monday.setFullYear(monday.getFullYear(), monday.getMonth(), monday.getDate());
-      const friday = new Date(monday);
-      friday.setDate(friday.getDate() + 4);
-      return { start: monday, end: friday };
-    }
-
-    function updateWeekInfo() {
-      const showAll = document.getElementById('showAllWeeks').checked;
-      const infoSpan = document.getElementById('currentWeekInfo');
-      if (showAll) {
-        infoSpan.innerHTML = '';
-      } else {
-        const type = getCurrentType();
-        const dates = getWeekDates(new Date());
-        const typeName = type === 'num' ? 'Чисельник' : 'Знаменник';
-        infoSpan.innerHTML = `${typeName} (${dates.start.toLocaleDateString('uk-UA')} – ${dates.end.toLocaleDateString('uk-UA')})`;
-      }
-    }
-
-    // Навігація
-    function scrollToDay(dayId) {
-      const element = document.getElementById(dayId);
-      if (element) {
-        element.scrollIntoView({ behavior: 'smooth', block: 'start' });
-      }
-    }
-
-    // Оновлення тексту навігації для мобільного
-    function updateNavText() {
-      const isMobile = window.innerWidth <= 600;
-      const links = document.querySelectorAll('nav a');
-      links.forEach(link => {
-        if (isMobile) {
-          link.textContent = link.dataset.short;
-        } else {
-          link.textContent = link.dataset.full;
-        }
-      });
-    }
-
-    // Темна тема
-    function toggleDarkMode() {
-      const isDark = document.body.classList.toggle('dark-mode');
-      const button = document.querySelector('.theme-toggle');
-      button.textContent = isDark ? '☀️' : '🌙';
-      setCookie('darkMode', isDark ? 'true' : 'false');
-    }
-
-    // Завантажити налаштування з cookies
-    function loadSettings() {
-      // Темна тема
-      const darkMode = getCookie('darkMode');
-      if (darkMode === 'true') {
-        document.body.classList.add('dark-mode');
-        document.querySelector('.theme-toggle').textContent = '☀️';
-      }
-
-      // Підгрупа
-      const subgroup = getCookie('subgroupFilter');
-      if (subgroup) {
-        document.getElementById('subgroupFilter').value = subgroup;
-      }
-
-      // Показати всі тижні
-      const showAll = getCookie('showAllWeeks');
-      if (showAll === 'true') {
-        document.getElementById('showAllWeeks').checked = true;
-      }
-
-      // Приховати порожні пари
-      const hideEmpty = getCookie('hideEmptyLessons');
-      if (hideEmpty === 'true') {
-        document.getElementById('hideEmptyLessons').checked = true;
-      }
-    }
-
-    // Зберегти налаштування
-    function saveSettings() {
-      const subgroup = document.getElementById('subgroupFilter').value;
-      const showAll = document.getElementById('showAllWeeks').checked;
-      const hideEmpty = document.getElementById('hideEmptyLessons').checked;
-      setCookie('subgroupFilter', subgroup);
-      setCookie('showAllWeeks', showAll ? 'true' : 'false');
-      setCookie('hideEmptyLessons', hideEmpty ? 'true' : 'false');
-    }
-
-    // Поточний день
-    function highlightToday() {
-      const days = ['Неділя', 'Понеділок', 'Вівторок', 'Середа', 'Четвер', 'П’ятниця', 'Субота'];
-      const today = new Date().getDay();
-      const todayName = days[today];
-      const daySections = document.querySelectorAll('.day');
-      daySections.forEach(section => {
-        const h2 = section.querySelector('h2');
-        if (h2 && h2.textContent === todayName) {
-          section.classList.add('today');
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      });
-    }
-    highlightToday();
-
-    // Фільтрація
-    function filterSchedule() {
-      const subgroup = document.getElementById('subgroupFilter').value;
-      const showAll = document.getElementById('showAllWeeks').checked;
-      const hideEmpty = document.getElementById('hideEmptyLessons').checked;
-      const currentType = getCurrentType();
-      const cards = document.querySelectorAll('.card');
-
-      cards.forEach(card => {
-        const subgroups = card.querySelectorAll('.subgroup');
-        let hasVisibleContent = false;
-
-        if (subgroups.length === 0) {
-          // Картки без підгруп
-          const isEmpty = card.classList.contains('empty');
-          if (hideEmpty && isEmpty) {
-            card.style.display = 'none';
-          } else {
-            card.style.display = 'block';
-            const emptyMsg = card.querySelector('.empty-message');
-            if (emptyMsg) emptyMsg.style.display = isEmpty ? 'block' : 'none';
-            const timeEl = card.querySelector('.time');
-            if (timeEl) timeEl.style.display = isEmpty ? 'none' : 'block';
-          }
-        } else {
-          // Сховати всі subgroups спочатку
-          subgroups.forEach(sub => sub.style.display = 'none');
-
-          subgroups.forEach(sub => {
-            let visible = true;
-
-            // Фільтр підгрупи
-            if (subgroup !== 'all') {
-              const subType = sub.classList.contains('sub1') ? 'sub1' : (sub.classList.contains('sub2') ? 'sub2' : null);
-              if (subType !== null && subType !== subgroup) visible = false;
-            }
-
-            // Фільтр тижня
-            if (!showAll) {
-              const weekType = sub.classList.contains('num') ? 'num' : (sub.classList.contains('den') ? 'den' : null);
-              if (weekType && weekType !== currentType) visible = false;
-            }
-
-            sub.style.display = visible ? 'block' : 'none';
-            if (visible) hasVisibleContent = true;
-          });
-
-          const emptyMsg = card.querySelector('.empty-message');
-          const timeEl = card.querySelector('.time');
-
-          if (hasVisibleContent) {
-            if (emptyMsg) emptyMsg.style.display = 'none';
-            if (timeEl) timeEl.style.display = 'block';
-            card.classList.remove('empty');
-            card.style.display = 'block';
-          } else {
-            subgroups.forEach(sub => sub.style.display = 'none');
-            if (timeEl) timeEl.style.display = 'none';
-            if (emptyMsg) emptyMsg.style.display = 'block';
-            else {
-              const newEmpty = document.createElement('p');
-              newEmpty.className = 'empty-message';
-              newEmpty.textContent = 'Немає';
-              newEmpty.style.display = 'block';
-              card.appendChild(newEmpty);
-            }
-            card.classList.add('empty');
-            card.style.display = hideEmpty ? 'none' : 'block';
-          }
-        }
-      });
-
-      // Приховувати лейбли чисельник/знаменник при автоматичному режимі
-      const labels = document.querySelectorAll('.num-label, .den-label');
-      labels.forEach(label => {
-        label.style.display = showAll ? '' : 'none';
-      });
-
-      updateWeekInfo();
-      highlightCurrentPair(); // Оновити виділення після фільтрації
-      saveSettings(); // Зберегти налаштування
-    }
-
-    // Виділення поточної/наступної пари
-    function highlightCurrentPair() {
-      const now = new Date();
-      const currentHour = now.getHours();
-      const currentMinute = now.getMinutes();
-      const currentMinutes = currentHour * 60 + currentMinute;
-
-      // Знайти сьогоднішній день
-      const todaySection = document.querySelector('.day.today');
-      if (!todaySection) return;
-
-      const cards = todaySection.querySelectorAll('.card:not(.empty)');
-      let currentCard = null;
-      let upcomingCard = null;
-      let minDiffToStart = Infinity;
-
-      cards.forEach(card => {
-        // Перевіряємо, чи картка видима
-        if (card.style.display === 'none') return;
-
-        const timeP = card.querySelector('.time');
-        if (!timeP || !timeP.textContent) return;
-
-        const timeText = timeP.textContent;
-        const [startTime, endTime] = timeText.split(' – ');
-        if (!startTime || !endTime) return;
-
-        const [startHour, startMin] = startTime.split(':').map(Number);
-        const [endHour, endMin] = endTime.split(':').map(Number);
-        if (isNaN(startHour) || isNaN(startMin) || isNaN(endHour) || isNaN(endMin)) return;
-
-        const startMinutes = startHour * 60 + startMin;
-        const endMinutes = endHour * 60 + endMin;
-
-        // Якщо зараз в проміжку пари
-        if (currentMinutes >= startMinutes && currentMinutes < endMinutes) {
-          card.classList.add('current');
-          card.classList.remove('upcoming');
-          currentCard = card;
-          return; // Тільки одна поточна
-        }
-
-        // Перевірити на наступну пару (якщо після цієї пари)
-        if (startMinutes > currentMinutes) {
-          const diff = startMinutes - currentMinutes;
-          if (diff < minDiffToStart) {
-            minDiffToStart = diff;
-            upcomingCard = card;
-          }
-        }
-      });
-
-      // Очистити попередні класи
-      cards.forEach(c => {
-        c.classList.remove('current', 'upcoming');
-      });
-
-      // Встановити поточну
-      if (currentCard) {
-        currentCard.classList.add('current');
-      }
-
-      // Встановити наступну, якщо < 15 хв
-      if (upcomingCard && minDiffToStart <= 15) {
-        upcomingCard.classList.add('upcoming');
-      }
-    }
-
-    // Ініціалізація
-    loadSettings(); // Завантажити налаштування
-    filterSchedule();
-    updateWeekInfo();
-    highlightCurrentPair(); // Початкове виділення
-    updateNavText(); // Оновити текст навігації
-
-    // Оновлювати кожну хвилину
-    setInterval(highlightCurrentPair, 60000); // Кожну хвилину
-
-    // Обробка зміни розміру екрану для навігації
-    window.addEventListener('resize', updateNavText);
-  </script>
-  <footer style="text-align: center; padding: 10px; background: #f1f1f1; margin-top: 20px;">
+  <script src="main.js"></script>
+  <footer style="text-align: center; padding: 10px; margin-top: 20px;">
     <p>Сайт створив Halitflyn © 2025</p>
   </footer>
 </body>
