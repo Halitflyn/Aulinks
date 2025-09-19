@@ -1,80 +1,168 @@
-<!DOCTYPE html>
-<html lang="uk">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Лабораторний Практикум</title>
-  <link rel="manifest" href="manifest.json">
-  <meta name="theme-color" content="#f4f4f9">
-  <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f4f4f9;
-      color: #333;
-    }
+import React, { useState, useMemo, useEffect } from 'react';
 
-    .wrapper {
-      position: relative;
-      width: 80%;
-      max-width: 900px;
-      margin: 20px auto;
-    }
+export default function GammaCalculator() {
+  const [rows, setRows] = useState(() => {
+    const saved = localStorage.getItem('gammaRows');
+    if (saved) return JSON.parse(saved);
+    return [
+      { id: 1, h1: 200, h2: 40 },
+      { id: 2, h1: 180, h2: 30 },
+    ];
+  });
 
-    iframe {
-      display: block;
-      width: 100%;
-      height: 90vh;
-      border: none;
-      border-radius: 8px;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-    }
+  useEffect(() => {
+    localStorage.setItem('gammaRows', JSON.stringify(rows));
+  }, [rows]);
 
-    /* адаптивність для мобільних */
-    @media (max-width: 768px) {
-      iframe {
-        height: 80vh;
-      }
-    }
+  const addRow = () => {
+    const id = rows.length ? Math.max(...rows.map(r => r.id)) + 1 : 1;
+    setRows([...rows, { id, h1: '', h2: '' }]);
+  };
 
-    /* перекриваємо верхню панель Scribd */
-    .overlay-top {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 60px;
-      background: white;
-      pointer-events: none;
-    }
+  const removeRow = (id) => setRows(rows.filter(r => r.id !== id));
 
-    footer {
-      text-align: center;
-      padding: 10px;
-      font-size: 14px;
-      color: #555;
-    }
-  </style>
-</head>
-<body>
+  const updateRow = (id, field, value) => {
+    setRows(rows.map(r => r.id === id ? { ...r, [field]: value } : r));
+  };
 
-  <div class="wrapper">
-    <iframe 
-      src="https://www.scribd.com/embeds/676364529/content?start_page=1&view_mode=scroll&access_key=key-eueqZifLGG0fVVvcfDIP">
-    </iframe>
-    <div class="overlay-top"></div>
-  </div>
+  const parsedRows = useMemo(() => rows.map(r => {
+    const h1 = parseFloat(r.h1);
+    const h2 = parseFloat(r.h2);
+    const valid = Number.isFinite(h1) && Number.isFinite(h2) && (Math.abs(h1 - h2) > 1e-12);
+    const gamma = valid ? h1 / (h1 - h2) : NaN;
+    return { ...r, h1, h2, gamma, valid };
+  }), [rows]);
 
-  <footer>
-    © 2025 Для навчального використання
-  </footer>
+  const avgH1 = useMemo(() => {
+    const values = parsedRows.filter(r => Number.isFinite(r.h1)).map(r => r.h1);
+    if (!values.length) return NaN;
+    return values.reduce((a,b) => a+b, 0) / values.length;
+  }, [parsedRows]);
 
-  <script>
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").then(() => {
-        console.log("Service Worker зареєстрований");
-      });
-    }
-  </script>
-</body>
-</html>
+  const avgH2 = useMemo(() => {
+    const values = parsedRows.filter(r => Number.isFinite(r.h2)).map(r => r.h2);
+    if (!values.length) return NaN;
+    return values.reduce((a,b) => a+b, 0) / values.length;
+  }, [parsedRows]);
+
+  const avgGamma = useMemo(() => {
+    const valGammas = parsedRows.filter(r => r.valid).map(r => r.gamma);
+    if (!valGammas.length) return NaN;
+    return valGammas.reduce((a,b) => a+b, 0) / valGammas.length;
+  }, [parsedRows]);
+
+  const avgDeltaGamma = useMemo(() => {
+    const valGammas = parsedRows.filter(r => r.valid).map(r => r.gamma);
+    if (!valGammas.length || !Number.isFinite(avgGamma)) return NaN;
+    const diffs = valGammas.map(g => Math.abs(g - avgGamma));
+    return diffs.reduce((a,b) => a+b, 0) / diffs.length;
+  }, [parsedRows, avgGamma]);
+
+  const avgDeltaPerc = useMemo(() => {
+    if (!Number.isFinite(avgDeltaGamma) || !Number.isFinite(avgGamma)) return NaN;
+    return (avgDeltaGamma / avgGamma) * 100;
+  }, [avgDeltaGamma, avgGamma]);
+
+  const rowsWithErrors = useMemo(() => parsedRows.map(r => {
+    const dGamma = (r.valid && Number.isFinite(avgGamma)) ? Math.abs(r.gamma - avgGamma) : NaN;
+    return { ...r, dGamma };
+  }), [parsedRows, avgGamma]);
+
+  const exportCSV = () => {
+    const header = ['#','h1 (mm)','h2 (mm)','gamma','Δgamma','Δgamma (%)'];
+    const lines = [header.join(',')];
+    rowsWithErrors.forEach((r,i) => {
+      const values = [i+1, r.h1 ?? '', r.h2 ?? '', Number.isFinite(r.gamma) ? r.gamma.toFixed(6) : '', Number.isFinite(r.dGamma) ? r.dGamma.toFixed(6) : '', ''];
+      lines.push(values.join(','));
+    });
+    lines.push(['Сер.', Number.isFinite(avgH1) ? avgH1.toFixed(2) : '', Number.isFinite(avgH2) ? avgH2.toFixed(2) : '', Number.isFinite(avgGamma) ? avgGamma.toFixed(6) : '', Number.isFinite(avgDeltaGamma) ? avgDeltaGamma.toFixed(6) : '', Number.isFinite(avgDeltaPerc) ? avgDeltaPerc.toFixed(3) + '%' : ''].join(','));
+    const blob = new Blob([lines.join('\n')], {type: 'text/csv;charset=utf-8;'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'gamma_results.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  return (
+    <div className="max-w-4xl mx-auto p-6">
+      <h1 className="text-2xl font-semibold mb-4">Калькулятор γ (метод Клемана–Дезорма)</h1>
+      <p className="mb-4 text-sm text-gray-700">Введи виміряні значення h₁ і h₂ (мм). Дані зберігаються в браузері. Додаток автоматично рахує γ = h₁ / (h₁ - h₂), абсолютну похибку Δγ, а Δγ% обчислюється як (сер.Δγ / сер.γ) · 100%.</p>
+
+      <div className="overflow-x-auto">
+        <table className="w-full table-auto border-collapse">
+          <thead>
+            <tr className="bg-gray-100">
+              <th className="px-3 py-2 border">#</th>
+              <th className="px-3 py-2 border">h₁ (мм)</th>
+              <th className="px-3 py-2 border">h₂ (мм)</th>
+              <th className="px-3 py-2 border">γ</th>
+              <th className="px-3 py-2 border">Δγ</th>
+              <th className="px-3 py-2 border">Δγ, %</th>
+              <th className="px-3 py-2 border">Дії</th>
+            </tr>
+          </thead>
+          <tbody>
+            {rowsWithErrors.map((r, i) => (
+              <tr key={r.id} className="odd:bg-white even:bg-gray-50">
+                <td className="px-3 py-2 border text-center">{i+1}</td>
+                <td className="px-3 py-2 border">
+                  <input
+                    type="number"
+                    step="any"
+                    value={r.h1}
+                    onChange={e => updateRow(r.id, 'h1', e.target.value)}
+                    className="w-full p-1 border rounded"
+                    placeholder="h1"
+                  />
+                </td>
+                <td className="px-3 py-2 border">
+                  <input
+                    type="number"
+                    step="any"
+                    value={r.h2}
+                    onChange={e => updateRow(r.id, 'h2', e.target.value)}
+                    className="w-full p-1 border rounded"
+                    placeholder="h2"
+                  />
+                </td>
+                <td className="px-3 py-2 border text-right">{Number.isFinite(r.gamma) ? r.gamma.toFixed(6) : '—'}</td>
+                <td className="px-3 py-2 border text-right">{Number.isFinite(r.dGamma) ? r.dGamma.toFixed(6) : '—'}</td>
+                <td className="px-3 py-2 border text-right">—</td>
+                <td className="px-3 py-2 border text-center">
+                  <button onClick={() => removeRow(r.id)} className="text-sm px-2 py-1 bg-red-500 text-white rounded">Видалити</button>
+                </td>
+              </tr>
+            ))}
+            <tr className="bg-gray-200 font-semibold">
+              <td className="px-3 py-2 border text-center">Сер.</td>
+              <td className="px-3 py-2 border text-right">{Number.isFinite(avgH1) ? avgH1.toFixed(2) : '—'}</td>
+              <td className="px-3 py-2 border text-right">{Number.isFinite(avgH2) ? avgH2.toFixed(2) : '—'}</td>
+              <td className="px-3 py-2 border text-right">{Number.isFinite(avgGamma) ? avgGamma.toFixed(6) : '—'}</td>
+              <td className="px-3 py-2 border text-right">{Number.isFinite(avgDeltaGamma) ? avgDeltaGamma.toFixed(6) : '—'}</td>
+              <td className="px-3 py-2 border text-right">{Number.isFinite(avgDeltaPerc) ? avgDeltaPerc.toFixed(3) + '%' : '—'}</td>
+              <td className="px-3 py-2 border text-center">—</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div className="flex items-center gap-3 mt-4">
+        <button onClick={addRow} className="px-3 py-2 bg-green-600 text-white rounded">Додати рядок</button>
+        <button onClick={exportCSV} className="px-3 py-2 bg-blue-600 text-white rounded">Експортувати CSV</button>
+      </div>
+
+      <div className="mt-6 text-sm text-gray-700">
+        <p><strong>Примітки:</strong></p>
+        <ul className="list-disc ml-5">
+          <li>Дані автоматично зберігаються в браузері (localStorage), щоб уникнути втрати.</li>
+          <li>Переконайся, що h₁ ≠ h₂ (інакше ділення на нуль).</li>
+          <li>Порожні або невірні поля пропускаються при обчисленні середнього.</li>
+          <li>Δγ% однакове для всіх рядків і рахується як (сер.Δγ / сер.γ)·100%.</li>
+          <li>Рядок «Сер.» додається автоматично і видалити його не можна. Тепер він містить середні значення h₁, h₂, γ, Δγ та Δγ%.</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
