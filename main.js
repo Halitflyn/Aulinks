@@ -32,13 +32,17 @@ function getISOWeek(date) {
 function getCurrentType() {
   const now = new Date();
   const startSemester = new Date('2025-09-08');
-  const weekStart = getISOWeek(startSemester); // 37-й тиждень
+  const weekStart = getISOWeek(startSemester); // наприклад, 37
   const currentWeek = getISOWeek(now);
-  
-  // Логіка: непарні тижні (починаючи з 37) - Чисельник, парні - Знаменник
-  const isNumerator = (currentWeek % 2) !== 0;
+
+  // Рахуємо різницю від початку семестру
+  const weeksSinceStart = currentWeek - weekStart + 1;
+
+  // Якщо непарний — Чисельник, якщо парний — Знаменник
+  const isNumerator = weeksSinceStart % 2 !== 0;
   return isNumerator ? 'num' : 'den';
 }
+
 
 function getWeekDates(date) {
   const d = new Date(date);
@@ -410,4 +414,5 @@ setInterval(() => {
 
 // Обробка зміни розміру екрану для навігації
 window.addEventListener('resize', updateNavText);
+
 
