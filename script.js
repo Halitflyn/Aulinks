@@ -587,13 +587,19 @@ async function initApp() {
   document.getElementById('schedule-title').textContent = 
     `Розклад занять (${data.group}, ${data.semester})`;
 
-  // Згенерувати інтерфейс
-  generateNavigation();
-  generateSchedule();
+// Генерувати інтерфейс
+  generateNavigation();
+  generateSchedule();
 
-  // Завантажити налаштування та застосувати фільтри
-  loadSettings();
-  filterSchedule();
+  // *** ПОЧАТОК ВИПРАВЛЕННЯ: Додаємо обробники подій ***
+  document.getElementById('subgroupFilter').addEventListener('change', filterSchedule);
+  document.getElementById('showAllWeeks').addEventListener('change', filterSchedule);
+  document.getElementById('hideEmptyLessons').addEventListener('change', filterSchedule);
+  // *** КІНЕЦЬ ВИПРАВЛЕННЯ ***
+
+  // Завантажити налаштування та застосувати фільтри
+  loadSettings();
+  filterSchedule();
   
   // Підсвітити сьогоднішній день
   highlightToday();
@@ -619,4 +625,5 @@ setInterval(() => {
 }, 60000);
 
 // Обробка зміни розміру екрану
+
 window.addEventListener('resize', updateNavText);
