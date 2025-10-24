@@ -842,10 +842,6 @@ async function initApp() {
   const data = await loadScheduleData();
   if (!data) return;
 
-  // Оновити заголовок
-  document.getElementById('schedule-title').textContent = 
-    `Розклад занять (${data.group}, ${data.semester})`;
-
   // Генерувати інтерфейс
   generateNavigation();
   generateSchedule(); 
@@ -888,3 +884,4 @@ setInterval(() => {
 
 // Обробка зміни розміру екрану
 window.addEventListener('resize', updateNavText);
+
