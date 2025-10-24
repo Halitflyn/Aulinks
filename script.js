@@ -21,6 +21,74 @@ function getCookie(name) {
   return null;
 }
 
+// --- Нові функції для скасованих пар ---
+
+// Отримує сьогоднішню дату в форматі YYYY-MM-DD
+function getTodayDateString() {
+  const today = new Date();
+  const y = today.getFullYear();
+  const m = String(today.getMonth() + 1).padStart(2, '0');
+  const d = String(today.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+// Розраховує різницю в днях між двома датами
+function daysDifference(dateStr1, dateStr2) {
+  const d1 = new Date(dateStr1);
+  const d2 = new Date(dateStr2);
+  const diffTime = Math.abs(d2.getTime() - d1.getTime());
+  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+}
+
+// Завантажує список скасованих пар, АВТОМАТИЧНО очищуючи старі (старші 7 днів)
+function loadCanceledLessons() {
+  const cookie = getCookie('canceledLessons');
+  if (!cookie) return { asSet: new Set(), asList: [] };
+
+  let list = [];
+  try {
+    list = JSON.parse(cookie);
+    if (!Array.isArray(list)) list = [];
+  } catch (e) {
+    list = [];
+  }
+
+  const today = getTodayDateString();
+  // Фільтруємо: залишаємо тільки ті, що скасовані менше 7 днів тому
+  const cleanedList = list.filter(item => {
+    return daysDifference(item.canceledOn, today) < 7;
+  });
+
+  // Якщо список змінився (очистили старі), оновлюємо cookie
+  if (cleanedList.length < list.length) {
+    setCookie('canceledLessons', JSON.stringify(cleanedList));
+  }
+
+  return {
+    asSet: new Set(cleanedList.map(item => item.id)), // Для швидкого пошуку
+    asList: cleanedList // Для збереження
+  };
+}
+
+// Перемикає стан пари (скасовано / не скасовано)
+function toggleCanceledLesson(id) {
+  const { asList } = loadCanceledLessons();
+  const today = getTodayDateString();
+  const index = asList.findIndex(item => item.id === id);
+
+  if (index > -1) {
+    // Вже є, видаляємо (повертаємо пару)
+    asList.splice(index, 1);
+  } else {
+    // Немає, додаємо (скасовуємо пару)
+    asList.push({ id: id, canceledOn: today });
+  }
+
+  setCookie('canceledLessons', JSON.stringify(asList));
+}
+
+// --- Кінець нових функцій ---
+
 // Функції для тижнів
 function getISOWeek(date) {
   const d = new Date(date.getTime());
@@ -105,21 +173,22 @@ function generateSchedule() {
       <section class="day" id="${dayKey}">
         <h2>${day.name}</h2>
         <div class="cards">
-          ${day.lessons.map(lesson => generateLessonCard(lesson)).join('')}
-        </div>
+          ${day.lessons.map(lesson => generateLessonCard(lesson, dayKey)).join('')}
+        </div>
       </section>
     `;
   }).join('');
 }
 
-function generateLessonCard(lesson) {
+function generateLessonCard(lesson, dayKey) {
   const isEmpty = lesson.type === 'empty' || !lesson.subject;
-  const cardClass = isEmpty ? 'card empty' : `card ${lesson.type}`;
-  
-  if (isEmpty) {
+  const cardClass = isEmpty ? 'card empty' : `card ${lesson.type}`;
+  const lessonId = `lesson-${dayKey}-${lesson.number}`; // Унікальний ID
+  
+  if (isEmpty) {
     return `
-      <article class="${cardClass}">
-        <h3>${lesson.number} пара</h3>
+      <article class="${cardClass}" id="${lessonId}">
+        <h3>${lesson.number} пара</h3>
         <p>Немає</p>
       </article>
     `;
@@ -146,8 +215,13 @@ function generateLessonCard(lesson) {
   ` : '';
 
   return `
-    <article class="${cardClass}">
-      <h3>${lesson.number} пара</h3>
+    <article class="${cardClass}" id="${lessonId}">
+      <h3>${lesson.number} пара</h3>
+      ${mainContent}
+      ${subgroupsHtml}
+      <p class="time">${lesson.time}</p>
+      <button class="cancel-btn" title="Скасувати/повернути пару" data-lesson-id="${lessonId}">×</button>
+    </article>
       ${mainContent}
       ${subgroupsHtml}
       <p class="time">${lesson.time}</p>
@@ -190,15 +264,29 @@ function getTypeLabel(type) {
 
 // Фільтрація розкладу
 function filterSchedule() {
-  const subgroup = document.getElementById('subgroupFilter').value;
-  const showAll = document.getElementById('showAllWeeks').checked;
-  const hideEmpty = document.getElementById('hideEmptyLessons').checked;
+  const subgroup = document.getElementById('subgroupFilter').value;
+  const showAll = document.getElementById('showAllWeeks').checked;
+  const hideEmpty = document.getElementById('hideEmptyLessons').checked;
+  const hideCanceled = document.getElementById('hideCanceled').checked; // НОВА
+  const canceledLessonIds = loadCanceledLessons().asSet; // НОВА
   const currentType = getCurrentType();
   const cards = document.querySelectorAll('.card');
 
   cards.forEach(card => {
-    const subgroups = card.querySelectorAll('.subgroup');
-    let hasVisibleContent = false;
+    const subgroups = card.querySelectorAll('.subgroup');
+    let hasVisibleContent = false;
+
+    // --- НОВА ЛОГІКА СКАСУВАННЯ ---
+    const isCanceled = canceledLessonIds.has(card.id);
+    card.classList.toggle('canceled', isCanceled); // Додає/видаляє клас для стилізації
+
+    if (hideCanceled && isCanceled) {
+      card.style.display = 'none';
+      return; // Переходимо до наступної картки
+    }
+    // --- КІНЕЦЬ НОВОЇ ЛОГІКИ ---
+
+    if (subgroups.length === 0) {
 
     if (subgroups.length === 0) {
       // Картки без підгруп
@@ -513,16 +601,32 @@ function loadSettings() {
   if (hideEmpty === 'true') {
     document.getElementById('hideEmptyLessons').checked = true;
   }
+  const hideCanceled = getCookie('hideCanceled'); // НОВЕ
+  if (hideCanceled === 'true') { // НОВЕ
+    document.getElementById('hideCanceled').checked = true; // НОВЕ
+  } // НОВЕ
 }
 
 // Збереження налаштувань
 function saveSettings() {
-  const subgroup = document.getElementById('subgroupFilter').value;
   const showAll = document.getElementById('showAllWeeks').checked;
-  const hideEmpty = document.getElementById('hideEmptyLessons').checked;
-  setCookie('subgroupFilter', subgroup);
-  setCookie('showAllWeeks', showAll ? 'true' : 'false');
-  setCookie('hideEmptyLessons', hideEmpty ? 'true' : 'false');
+  const hideEmpty = document.getElementById('hideEmptyLessons').checked;
+  const hideCanceled = document.getElementById('hideCanceled').checked; // НОВЕ
+  setCookie('subgroupFilter', subgroup);
+  setCookie('showAllWeeks', showAll ? 'true' : 'false');
+  setCookie('hideEmptyLessons', hideEmpty ? 'true' : 'false');
+  setCookie('hideCanceled', hideCanceled ? 'true' : 'false'); // НОВЕ
+}
+
+// Обробник кліку на кнопках скасування
+function handleCancelClick(e) {
+  // Перевіряємо, чи клікнули ми саме на кнопку "x"
+  if (e.target.classList.contains('cancel-btn')) {
+    const id = e.target.dataset.lessonId;
+    toggleCanceledLesson(id);
+    filterSchedule(); // Оновити вигляд одразу
+    vibrate(); // Приємний фідбек
+  }
 }
 
 // Генерація звітів та статистики
@@ -532,10 +636,7 @@ function generateReports() {
   const stats = calculateStatistics();
   
   // Оновити статистичні картки
-  document.getElementById('totalLessons').textContent = stats.totalLessons;
-  document.getElementById('totalSubjects').textContent = stats.subjects.size;
-  document.getElementById('totalTeachers').textContent = stats.teachers.size;
-  document.getElementById('busyDays').textContent = stats.busyDays;
+  document.getElementById('totalLessons').textContent = stats.totalLessons;
 
   // Генерувати розбивку по предметах
   const subjectsBreakdown = document.getElementById('subjectsBreakdown');
@@ -611,10 +712,13 @@ async function initApp() {
   generateNavigation();
   generateSchedule();
 
-  // *** ПОЧАТОК ВИПРАВЛЕННЯ: Додаємо обробники подій ***
+  // *** ПОЧАТОК ВИПРАВЛЕННЯ: Додаємо обробники подій ***
   document.getElementById('subgroupFilter').addEventListener('change', filterSchedule);
   document.getElementById('showAllWeeks').addEventListener('change', filterSchedule);
   document.getElementById('hideEmptyLessons').addEventListener('change', filterSchedule);
+  document.getElementById('hideCanceled').addEventListener('change', filterSchedule); // НОВИЙ
+  // Додаємо один обробник на весь контейнер для кнопок "x" (делегування подій)
+  document.getElementById('schedule-container').addEventListener('click', handleCancelClick); // НОВИЙ
   // *** КІНЕЦЬ ВИПРАВЛЕННЯ ***
 
   // Завантажити налаштування та застосувати фільтри
@@ -647,4 +751,5 @@ setInterval(() => {
 // Обробка зміни розміру екрану
 
 window.addEventListener('resize', updateNavText);
+
 
