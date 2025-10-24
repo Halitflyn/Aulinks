@@ -208,39 +208,59 @@ function filterSchedule() {
       } else {
         card.style.display = 'block';
       }
-    } else {
-      // Сховати всі subgroups спочатку
-      subgroups.forEach(sub => sub.style.display = 'none');
+} else {
+      // Сховати всі subgroups спочатку
+      subgroups.forEach(sub => sub.style.display = 'none');
+      
+      // Знайти елементи, які ми будемо ховати/показувати
+      const timeEl = card.querySelector('.time');
+      let emptyMsg = card.querySelector('.empty-message');
 
-      subgroups.forEach(sub => {
-        let visible = true;
+      subgroups.forEach(sub => {
+        let visible = true;
 
-        // Фільтр підгрупи
-        if (subgroup !== 'all') {
-          const subType = sub.classList.contains('sub1') ? 'sub1' : 
-                         (sub.classList.contains('sub2') ? 'sub2' : 'all');
-          if (subType !== 'all' && subType !== subgroup) visible = false;
-        }
+        // Фільтр підгрупи
+        if (subgroup !== 'all') {
+          const subType = sub.classList.contains('sub1') ? 'sub1' : 
+                         (sub.classList.contains('sub2') ? 'sub2' : 'all');
+          if (subType !== 'all' && subType !== subgroup) visible = false;
+        }
 
-        // Фільтр тижня
-        if (!showAll) {
-          const weekType = sub.classList.contains('num') ? 'num' : 
-                          (sub.classList.contains('den') ? 'den' : 'all');
-          if (weekType !== 'all' && weekType !== currentType) visible = false;
-        }
+        // Фільтр тижня
+        if (!showAll) {
+          const weekType = sub.classList.contains('num') ? 'num' : 
+                          (sub.classList.contains('den') ? 'den' : 'all');
+          if (weekType !== 'all' && weekType !== currentType) visible = false;
+        }
 
-        sub.style.display = visible ? 'block' : 'none';
-        if (visible) hasVisibleContent = true;
-      });
+        sub.style.display = visible ? 'block' : 'none';
+        if (visible) hasVisibleContent = true;
+      });
 
-      if (hasVisibleContent) {
-        card.classList.remove('empty');
-        card.style.display = 'block';
-      } else {
-        card.classList.add('empty');
-        card.style.display = hideEmpty ? 'none' : 'block';
-      }
-    }
+      // --- ОСЬ ГОЛОВНЕ ВИПРАВЛЕННЯ ---
+      if (hasVisibleContent) {
+        card.classList.remove('empty');
+        card.style.display = 'block';
+        
+        // Показати час і видалити "Немає", якщо воно було
+        if (timeEl) timeEl.style.display = 'block';
+        if (emptyMsg) emptyMsg.remove();
+        
+      } else {
+        card.classList.add('empty');
+        card.style.display = hideEmpty ? 'none' : 'block';
+        
+        // Приховати час і додати "Немає", якщо його ще немає
+        if (timeEl) timeEl.style.display = 'none';
+        if (!emptyMsg) {
+          emptyMsg = document.createElement('p');
+          emptyMsg.className = 'empty-message';
+          emptyMsg.textContent = 'Немає';
+          // Додаємо <p>Немає</p> одразу після <h3> (номера пари)
+          card.querySelector('h3').insertAdjacentElement('afterend', emptyMsg);
+        }
+      }
+    }
   });
 
   // Приховувати лейбли чисельник/знаменник при автоматичному режимі
@@ -627,3 +647,4 @@ setInterval(() => {
 // Обробка зміни розміру екрану
 
 window.addEventListener('resize', updateNavText);
+
