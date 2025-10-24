@@ -72,9 +72,29 @@
   <footer style="text-align: center; padding: 10px; margin-top: 20px;">
     <p>Сайт створив Halitflyn © 2025</p>
   </footer>
+  <button class="settings-btn" id="settingsBtn" title="Налаштування">⚙️</button>
+
+<div class="modal" id="settingsModal">
+  <div class="modal-content">
+    <span class="modal-close" id="modalClose">&times;</span>
+    <h2>Налаштування розкладу</h2>
+    <p>Ви можете завантажити свій власний файл <code>schedule.json</code>.</p>
+    <p>Якщо у вас немає файлу, ви можете експортувати поточний розклад як шаблон, відредагувати його і завантажити назад.</p>
+    
+    <div class="modal-actions">
+      <input type="file" id="importFile" accept=".json" style="display: none;">
+      
+      <button class="modal-btn import" id="importBtn">⬆️ Імпорт (.json)</button>
+      <button class="modal-btn export" id="exportBtn">⬇️ Експорт (Шаблон)</button>
+      <button class="modal-btn delete" id="deleteBtn">🗑️ Видалити мій розклад</button>
+    </div>
+    <div id="importStatus"></div>
+  </div>
+</div>
 </body>
 
 </html>
+
 
 
 
