@@ -189,14 +189,13 @@ function generateSchedule() {
 }
 
 function generateLessonCard(lesson, dayKey) {
-  // *** ВИПРАВЛЕННЯ ЛОГІКИ ПОРОЖНІХ ПАР ***
   // Пара вважається порожньою, ТІЛЬКИ ЯКЩО в ній немає ані головного предмету, ані підгруп.
   const hasSubgroups = lesson.subgroups && lesson.subgroups.length > 0;
   const isEmpty = (lesson.type === 'empty' || !lesson.subject) && !hasSubgroups;
 
   let cardClass = isEmpty ? 'card empty' : `card ${lesson.type}`;
   
-  // Додаємо клас тижня, якщо пара *не* ділиться на підгрупи (інакше тиждень на самих підгрупах)
+  // Додаємо клас тижня, якщо пара *не* ділиться на підгрупи
   if (!hasSubgroups && lesson.weeks) {
       if (lesson.weeks === 'num' || lesson.weeks === 'den') {
           cardClass += ` numden ${lesson.weeks}`;
@@ -214,8 +213,12 @@ function generateLessonCard(lesson, dayKey) {
     `;
   }
 
+  // === *** ПОЧАТОК ВИПРАВЛЕННЯ ДУБЛЮВАННЯ *** ===
   let subgroupsHtml = '';
+  let mainContent = ''; // Ініціалізуємо як порожні
+
   if (hasSubgroups) {
+    // --- 1. Є ПІДГРУПИ: Рендеримо тільки їх ---
     subgroupsHtml = lesson.subgroups.map(sub => {
       const subClass = getSubgroupClass(sub);
       const subLabel = getSubgroupLabel(sub);
@@ -227,14 +230,14 @@ function generateLessonCard(lesson, dayKey) {
         </div>
       `;
     }).join('');
+  } else if (lesson.subject) {
+    // --- 2. НЕМАЄ ПІДГРУП, АЛЕ Є ГОЛОВНИЙ ПРЕДМЕТ: Рендеримо його ---
+    mainContent = `
+      <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
+      <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + lesson.room : ''}</p>
+    `;
   }
-
-  // Показуємо головний контент, ТІЛЬКИ ЯКЩО є `lesson.subject`
-  // (Якщо `subject` порожній, але є підгрупи, `mainContent` буде порожнім)
-  const mainContent = lesson.subject ? `
-    <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
-    <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + lesson.room : ''}</p>
-  ` : '';
+  // === *** КІНЕЦЬ ВИПРАВЛЕННЯ *** ===
 
   return `
     <article class="${cardClass}" id="${lessonId}">
@@ -282,7 +285,7 @@ function getTypeLabel(type) {
   return types[type] || type;
 }
 
-// Фільтрація розкладу (ПОВНІСТЮ ОНОВЛЕНА ЛОГІКА)
+// Фільтрація розкладу
 function filterSchedule() {
   const subgroup = document.getElementById('subgroupFilter').value;
   const showAll = document.getElementById('showAllWeeks').checked;
@@ -350,7 +353,6 @@ function filterSchedule() {
           mainVisible = false;
         }
       }
-      // (Тут можна додати фільтр підгруп для mainContent, якщо потрібно)
       
       if (mainVisible) {
         hasVisibleContent = true;
@@ -366,10 +368,13 @@ function filterSchedule() {
         let visible = true;
 
         // Фільтр підгрупи
-        if (subgroup !== 'all') {
-          const subType = sub.classList.contains('sub1') ? 'sub1' : 
-                          (sub.classList.contains('sub2') ? 'sub2' : 'all');
-          if (subType !== 'all' && subType !== subgroup) visible = false;
+        const subType = sub.classList.contains('sub1') ? 'sub1' : 
+                        (sub.classList.contains('sub2') ? 'sub2' : 'all');
+                        
+        if (subgroup !== 'all') { // Якщо фільтр активний
+          if (subType !== 'all' && subType !== subgroup) {
+            visible = false; // Приховати, якщо це інша підгрупа (sub2, а фільтр sub1)
+          }
         }
 
         // Фільтр тижня
@@ -834,7 +839,7 @@ async function initApp() {
 
   // Генерувати інтерфейс
   generateNavigation();
-  generateSchedule();
+  generateSchedule(); // Помилка могла бути тут
 
   // *** ПОЧАТОК ВИПРАВЛЕННЯ: Додаємо обробники подій ***
   document.getElementById('subgroupFilter').addEventListener('change', filterSchedule);
@@ -847,7 +852,7 @@ async function initApp() {
 
   // Завантажити налаштування та застосувати фільтри
   loadSettings();
-  filterSchedule();
+  filterSchedule(); // Або тут
   
   // Підсвітити сьогоднішній день
   highlightToday();
@@ -856,7 +861,7 @@ async function initApp() {
   updateNavText();
 
   // Генерувати звіти
-  generateReports();
+  generateReports(); // Або тут
 
   // Сховати індикатор завантаження
   document.getElementById('loading').style.display = 'none';
