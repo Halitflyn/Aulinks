@@ -41,8 +41,11 @@
       <label style="margin-left: 20px;">
         <input type="checkbox" id="showAllWeeks"> Показати всі тижні
       </label>
-      <label style="margin-left: 20px;">
+      <label style="margin-left: 20px;">
         <input type="checkbox" id="hideEmptyLessons"> Приховати порожні пари
+      </label>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="hideCanceled"> Приховати скасовані
       </label>
       <span id="currentWeekInfo"></span>
     </div>
@@ -50,24 +53,12 @@
     <!-- Звіти та статистика -->
     <div class="reports">
       <h3>📊 Статистика</h3>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-number" id="totalLessons">0</div>
-          <div class="stat-label">Всього пар на тиждень</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="totalSubjects">0</div>
-          <div class="stat-label">Предметів</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="totalTeachers">0</div>
-          <div class="stat-label">Викладачів</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-number" id="busyDays">0</div>
-          <div class="stat-label">Навчальних днів</div>
-        </div>
-      </div>
+    <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number" id="totalLessons">0</div>
+          <div class="stat-label">Всього пар на тиждень</div>
+        </div>
+      </div>
       
       <div class="subjects-report">
         <h4>📚 Предмети по типах занять</h4>
@@ -84,3 +75,4 @@
 </body>
 
 </html>
+
