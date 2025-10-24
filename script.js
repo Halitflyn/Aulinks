@@ -1,6 +1,6 @@
 // Глобальні змінні
 let scheduleData = null;
-let themeAutoHideTimer; // Для старої логіки кнопки теми, може бути непотрібним
+let themeAutoHideTimer; // Розкоментовано
 const themeBtn = document.getElementById('themeBtn'); // Кнопка Теми (кругла справа)
 const SCHEDULE_STORAGE_KEY = 'myCustomSchedule';
 
@@ -80,7 +80,7 @@ function getISOWeek(date) {
     const yearStart = new Date(d.getFullYear(), 0, 1);
     // Перевірка на валідність року
     const week1 = new Date(d.getFullYear(), 0, 4);
-     if (isNaN(week1.getTime())) return NaN;
+      if (isNaN(week1.getTime())) return NaN;
     // Calculate full weeks to nearest Thursday
     const dayOfYear = ((d - yearStart) / 86400000) + 1;
     const weekNum = Math.ceil((dayOfYear - d.getDay() + 4) / 7);
@@ -88,7 +88,7 @@ function getISOWeek(date) {
     // // Старий розрахунок, може давати помилки на межі року
     // const week1 = new Date(d.getFullYear(), 0, 4);
     // return 1 + Math.round(((d.getTime() - week1.getTime()) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
-     return weekNum;
+      return weekNum;
 }
 function getCurrentType() {
     const showNextWeek = showNextWeekBtn?.classList.contains('active') || false;
@@ -103,27 +103,27 @@ function getCurrentType() {
     }
 
     const startSemester = new Date(startSemesterStr);
-     if (isNaN(startSemester.getTime())) { // Якщо дата невалідна
+      if (isNaN(startSemester.getTime())) { // Якщо дата невалідна
         console.error("Invalid startDate in scheduleData:", startSemesterStr,". Assuming current week is numerator.");
-         const currentWeekNum = getISOWeek(now);
-         return isNaN(currentWeekNum) || currentWeekNum % 2 !== 0 ? 'num' : 'den';
+          const currentWeekNum = getISOWeek(now);
+          return isNaN(currentWeekNum) || currentWeekNum % 2 !== 0 ? 'num' : 'den';
     }
 
     const weekStart = getISOWeek(startSemester);
     const currentWeek = getISOWeek(now);
 
     if (isNaN(weekStart) || isNaN(currentWeek)) {
-         console.error("Could not calculate week numbers. Assuming numerator.");
-         return 'num'; // Fallback
+          console.error("Could not calculate week numbers. Assuming numerator.");
+          return 'num'; // Fallback
     }
 
     const weeksSinceStart = currentWeek - weekStart + 1;
     // Якщо тиждень старту непарний (чис), то всі непарні відносно нього - чис.
     // Якщо тиждень старту парний (знам), то всі парні відносно нього - знам (тобто непарні - чис).
     // const isNumerator = (weeksSinceStart % 2 !== 0); // Це працює тільки якщо startWeek завжди 1 чи інше непарне число
-     const startWeekIsOdd = weekStart % 2 !== 0;
-     const currentWeekIsOdd = currentWeek % 2 !== 0;
-     const isNumerator = startWeekIsOdd === currentWeekIsOdd; // Чисельник, якщо парність тижнів збігається
+      const startWeekIsOdd = weekStart % 2 !== 0;
+      const currentWeekIsOdd = currentWeek % 2 !== 0;
+      const isNumerator = startWeekIsOdd === currentWeekIsOdd; // Чисельник, якщо парність тижнів збігається
 
     return isNumerator ? 'num' : 'den';
 }
@@ -156,7 +156,7 @@ async function loadScheduleData() {
         const response = await fetch('./schedule.json');
         if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         scheduleData = await response.json();
-         if (typeof scheduleData !== 'object' || scheduleData === null) throw new Error("Invalid data format");
+          if (typeof scheduleData !== 'object' || scheduleData === null) throw new Error("Invalid data format");
         return scheduleData;
     } catch (error) {
         console.error('Помилка завантаження розкладу:', error);
@@ -183,7 +183,7 @@ function generateNavigation() {
         const dayName = scheduleData.schedule[dayKey]?.name || dayKey;
         const shortName = getShortDayName(dayName);
         return `<a href="#" onclick="scrollToDay('${dayKey}'); return false;"
-                 data-full="${dayName}" data-short="${shortName}">${dayName}</a>`;
+                  data-full="${dayName}" data-short="${shortName}">${dayName}</a>`;
     }).join('');
 }
 function getShortDayName(fullName) {
@@ -331,7 +331,7 @@ function filterSchedule() {
 
         // Перевіряємо, чи це картка, яка початково була порожньою (має клас empty і НЕ має підгруп/головного контенту)
         if (card.classList.contains('empty') && !mainContentEl && subgroups.length === 0) {
-             hasVisibleContent = false;
+              hasVisibleContent = false;
         }
 
         if (hasVisibleContent) {
@@ -340,10 +340,10 @@ function filterSchedule() {
             if (timeEl) timeEl.style.display = 'block'; // Показуємо час
             if (emptyMsg) emptyMsg.style.display = 'none'; // Ховаємо "Немає"
         } else {
-             // Якщо картка стала порожньою ПІСЛЯ фільтрації
-             if (!card.classList.contains('empty')) { // Додаємо клас, якщо його не було
-                 card.classList.add('empty');
-             }
+            // Якщо картка стала порожньою ПІСЛЯ фільтрації
+            if (!card.classList.contains('empty')) { // Додаємо клас, якщо його не було
+                card.classList.add('empty');
+            }
             if (timeEl) timeEl.style.display = 'none'; // Ховаємо час
             if (!emptyMsg && h3El) { emptyMsg = document.createElement('p'); emptyMsg.className = 'empty-message'; h3El.insertAdjacentElement('afterend', emptyMsg); }
             if (emptyMsg) { emptyMsg.textContent = 'Немає'; emptyMsg.style.display = 'block'; } // Показуємо "Немає"
@@ -405,7 +405,7 @@ function updateNavText() {
 function toggleDarkMode() {
     const isDark = document.body.classList.toggle('dark-mode');
     localStorage.setItem('theme', isDark ? 'dark' : 'light');
-    if (themeBtn) themeBtn.textContent = isDark ? '☀️' : '🌙';
+    // РЯДОК (themeBtn.textContent = ...) ВИДАЛЕНО ЗВІДСИ
 }
 function highlightToday() {
     const days = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -420,9 +420,9 @@ function highlightToday() {
         const dayName = scheduleData?.schedule?.[todayKey]?.name; // Безпечний доступ
         if (dayName && link.dataset.full === dayName) link.classList.add('active-day');
     });
-     // Не скролимо при початковому завантаженні, щоб не заважати користувачу
-     // const todaySection = document.getElementById(todayKey);
-     // if (todaySection) todaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Не скролимо при початковому завантаженні, щоб не заважати користувачу
+      // const todaySection = document.getElementById(todayKey);
+      // if (todaySection) todaySection.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 function highlightCurrentPair() {
     const now = new Date();
@@ -466,13 +466,88 @@ function highlightCurrentPair() {
 
 // --- Кнопка Теми ---
 if (themeBtn) {
-    themeBtn.addEventListener('click', () => {
-        toggleDarkMode();
+  themeBtn.addEventListener('click', () => {
+    if (!themeBtn.classList.contains('expanded')) {
+      themeBtn.classList.add('expanded');
+      updateThemeButtonTime();
+      vibrate();
+      clearTimeout(themeAutoHideTimer);
+      themeAutoHideTimer = setTimeout(() => {
+        themeBtn.classList.remove('expanded', 'green', 'yellow', 'purple');
+        themeBtn.textContent = '';
         vibrate();
-    });
-     // Ініціалізація іконки виконується в loadSettings
+      }, 3000);
+    } else {
+      toggleDarkMode();
+      updateThemeButtonTime();
+      vibrate();
+      clearTimeout(themeAutoHideTimer);
+      themeAutoHideTimer = setTimeout(() => {
+        themeBtn.classList.remove('expanded', 'green', 'yellow', 'purple');
+        themeBtn.textContent = '';
+        vibrate();
+      }, 2000);
+    }
+  });
 }
 function vibrate() { if (navigator.vibrate) navigator.vibrate(50); }
+
+// Збір проміжків часу для кнопки теми
+function collectTodayIntervals() {
+  const todaySection = document.querySelector('.day.today');
+  if (!todaySection) return [];
+  const cards = todaySection.querySelectorAll('.card:not(.empty):not(.canceled)');
+  const intervals = [];
+  
+  cards.forEach(card => {
+    if (card.style.display === 'none') return;
+    const timeEl = card.querySelector('.time');
+    if (!timeEl || !timeEl.textContent) return;
+    const [startTime, endTime] = timeEl.textContent.split(' – ');
+    if (!startTime || !endTime) return;
+    const [sh, sm] = startTime.split(':').map(Number);
+    const [eh, em] = endTime.split(':').map(Number);
+    if ([sh, sm, eh, em].some(n => Number.isNaN(n))) return;
+    intervals.push({ start: sh * 60 + sm, end: eh * 60 + em });
+  });
+  
+  intervals.sort((a, b) => a.start - b.start);
+  return intervals;
+}
+
+// Оновлення кнопки теми
+function updateThemeButtonTime() {
+  if (!themeBtn || !themeBtn.classList.contains('expanded')) return;
+  const now = new Date();
+  const currentMinutes = now.getHours() * 60 + now.getMinutes();
+  const intervals = collectTodayIntervals();
+
+  let current = null;
+  let upcomingDiff = Infinity;
+  let minutesLeft = null;
+
+  intervals.forEach(({ start, end }) => {
+    if (currentMinutes >= start && currentMinutes < end) {
+      current = { start, end };
+      minutesLeft = end - currentMinutes;
+    } else if (start > currentMinutes) {
+      const diff = start - currentMinutes;
+      if (diff < upcomingDiff) upcomingDiff = diff;
+    }
+  });
+
+  themeBtn.className = 'theme-toggle expanded';
+  if (current) {
+    themeBtn.classList.add('green');
+    themeBtn.textContent = `${minutesLeft}хв`;
+  } else if (upcomingDiff !== Infinity) {
+    themeBtn.classList.add('yellow');
+    themeBtn.textContent = `${upcomingDiff}хв`;
+  } else {
+    themeBtn.classList.add('purple');
+    themeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  }
+}
 // --- ---
 
 // Завантаження налаштувань
@@ -481,7 +556,7 @@ function loadSettings() {
   // Встановлюємо тему ДО того, як завантажувати інші налаштування
   if (savedTheme === 'dark') document.body.classList.add('dark-mode');
   else document.body.classList.remove('dark-mode');
-  if (themeBtn) themeBtn.textContent = document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+  // РЯДОК (themeBtn.textContent = ...) ВИДАЛЕНО ЗВІДСИ
 
   const subgroup = getCookie('subgroupFilter');
   if (subgroup && subgroupFilter) subgroupFilter.value = subgroup;
@@ -608,18 +683,18 @@ function initModal() {
   };
 
   exportBtn.onclick = () => {
-       if (!scheduleData) { if(importStatusEl) { /* ... помилка ... */} return; }
-       try {
-           const dataStr = JSON.stringify(scheduleData, null, 2);
-           const dataBlob = new Blob([dataStr], {type: 'application/json'});
-           const url = URL.createObjectURL(dataBlob);
-           const a = document.createElement('a'); a.href = url;
-           a.download = `${scheduleData.group?.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'schedule'}.json`; // Безпечна назва
-           a.click(); URL.revokeObjectURL(url); a.remove();
-           if (importStatusEl) { importStatusEl.textContent = '✅ Експортовано!'; importStatusEl.className = 'status info active'; }
-       } catch (err) {
-            console.error('Export error:', err); if (importStatusEl) { /* ... помилка ... */}
-       }
+      if (!scheduleData) { if(importStatusEl) { /* ... помилка ... */} return; }
+      try {
+          const dataStr = JSON.stringify(scheduleData, null, 2);
+          const dataBlob = new Blob([dataStr], {type: 'application/json'});
+          const url = URL.createObjectURL(dataBlob);
+          const a = document.createElement('a'); a.href = url;
+          a.download = `${scheduleData.group?.replace(/[^a-z0-9]/gi, '_').toLowerCase() || 'schedule'}.json`; // Безпечна назва
+          a.click(); URL.revokeObjectURL(url); a.remove();
+          if (importStatusEl) { importStatusEl.textContent = '✅ Експортовано!'; importStatusEl.className = 'status info active'; }
+      } catch (err) {
+          console.error('Export error:', err); if (importStatusEl) { /* ... помилка ... */}
+      }
   };
   deleteBtn.onclick = () => {
       if (confirm('Видалити ваш розклад і повернути стандартний?')) {
@@ -714,7 +789,7 @@ document.addEventListener('DOMContentLoaded', initApp);
 // Оновлення кожну хвилину
 const minuteUpdater = setInterval(() => {
   highlightCurrentPair();
-  // Можна додати інші оновлення, якщо потрібно
+  updateThemeButtonTime(); // <--- ДОДАНО
 }, 60000);
 
 // Обробка зміни розміру екрану
