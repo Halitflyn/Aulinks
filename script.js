@@ -213,7 +213,7 @@ function generateLessonCard(lesson, dayKey) {
     `;
   }
 
-  // === *** ПОЧАТОК ВИПРАВЛЕННЯ ДУБЛЮВАННЯ *** ===
+  // === *** ПОЧАТОК ВИПРАВЛЕННЯ 1 (Дублювання) *** ===
   let subgroupsHtml = '';
   let mainContent = ''; // Ініціалізуємо як порожні
 
@@ -221,10 +221,20 @@ function generateLessonCard(lesson, dayKey) {
     // --- 1. Є ПІДГРУПИ: Рендеримо тільки їх ---
     subgroupsHtml = lesson.subgroups.map(sub => {
       const subClass = getSubgroupClass(sub);
-      const subLabel = getSubgroupLabel(sub);
+      const subLabel = getSubgroupLabel(sub); // Нова функція (Fix 2)
+      
+      // === *** ПОЧАТОК ВИПРАВЛЕННЯ 2 (Кольори) *** ===
+      let weekLabel = '';
+      if (sub.weeks === 'num') {
+        weekLabel = '<span class="week-label num-label"> (Чисельник)</span>';
+      } else if (sub.weeks === 'den') {
+        weekLabel = '<span class="week-label den-label"> (Знаменник)</span>';
+      }
+      // === *** КІНЕЦЬ ВИПРАВЛЕННЯ 2 *** ===
+
       return `
         <div class="subgroup ${subClass}">
-          <p class="subgroup-label ${sub.group === 'sub2' ? 'sub2' : 'sub1'}">${subLabel}</p>
+          <p class="subgroup-label ${sub.group === 'sub2' ? 'sub2' : 'sub1'}">${subLabel}${weekLabel}</p>
           <p><b>${sub.subject}</b> (${getTypeLabel(sub.type)})</p>
           <p class="teacher-room">${sub.teacher}${sub.room ? ', ' + sub.room : ''}</p>
         </div>
@@ -237,7 +247,7 @@ function generateLessonCard(lesson, dayKey) {
       <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + lesson.room : ''}</p>
     `;
   }
-  // === *** КІНЕЦЬ ВИПРАВЛЕННЯ *** ===
+  // === *** КІНЕЦЬ ВИПРАВЛЕННЯ 1 *** ===
 
   return `
     <article class="${cardClass}" id="${lessonId}">
@@ -263,17 +273,14 @@ function getSubgroupClass(sub) {
   return classes.join(' ');
 }
 
+// === *** ПОЧАТОК ВИПРАВЛЕННЯ 2 (Кольори) *** ===
+// Тепер повертає ТІЛЬКИ назву підгрупи
 function getSubgroupLabel(sub) {
-  let label = '';
-  if (sub.group === 'sub1') label = 'Підгрупа 1';
-  else if (sub.group === 'sub2') label = 'Підгрупа 2';
-  else if (sub.group === 'all') label = '';
-  
-  if (sub.weeks === 'num') label += label ? ' (Чисельник)' : 'Чисельник';
-  else if (sub.weeks === 'den') label += label ? ' (Знаменник)' : 'Знаменник';
-  
-  return label;
+  if (sub.group === 'sub1') return 'Підгрупа 1';
+  if (sub.group === 'sub2') return 'Підгрупа 2';
+  return ''; // 'all' або не вказано
 }
+// === *** КІНЕЦЬ ВИПРАВЛЕННЯ 2 *** ===
 
 function getTypeLabel(type) {
   const types = {
@@ -514,8 +521,11 @@ function highlightToday() {
     section.classList.remove('today');
     if (section.id === todayKey) {
       section.classList.add('today');
-      // Прибираємо авто-скрол при завантаженні, щоб не заважав
-      // section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      
+      // === *** ПОЧАТОК ВИПРАВЛЕННЯ 3 (Скрол) *** ===
+      // Повертаємо авто-скрол при завантаженні
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // === *** КІНЕЦЬ ВИПРАВЛЕННЯ 3 *** ===
     }
   });
 
@@ -776,8 +786,8 @@ function calculateStatistics() {
       
       let lessonCounted = false;
 
-      // Обробка головної пари (якщо вона є)
-      if (lesson.subject) {
+      // Обробка головної пари (якщо вона є і НЕ має підгруп)
+      if (lesson.subject && !hasSubgroups) {
         dayHasLessons = true;
         totalLessons++; // Рахуємо як 1 пару
         lessonCounted = true;
@@ -804,8 +814,7 @@ function calculateStatistics() {
             }
             subjectTypes.get(sub.subject).add(sub.type);
             
-            // Якщо не було головної пари, рахуємо першу підгрупу як 1 пару
-            // Це для "змішаних" пар, щоб вони не рахувались як 2-3 окремі пари
+            // Якщо це пара з підгрупами, рахуємо її як ОДНУ пару
             if (!lessonCounted) {
                 totalLessons++;
                 lessonCounted = true; // Рахуємо "змішану" пару лише один раз
@@ -839,7 +848,7 @@ async function initApp() {
 
   // Генерувати інтерфейс
   generateNavigation();
-  generateSchedule(); // Помилка могла бути тут
+  generateSchedule(); 
 
   // *** ПОЧАТОК ВИПРАВЛЕННЯ: Додаємо обробники подій ***
   document.getElementById('subgroupFilter').addEventListener('change', filterSchedule);
@@ -852,7 +861,7 @@ async function initApp() {
 
   // Завантажити налаштування та застосувати фільтри
   loadSettings();
-  filterSchedule(); // Або тут
+  filterSchedule(); 
   
   // Підсвітити сьогоднішній день
   highlightToday();
@@ -861,7 +870,7 @@ async function initApp() {
   updateNavText();
 
   // Генерувати звіти
-  generateReports(); // Або тут
+  generateReports(); 
 
   // Сховати індикатор завантаження
   document.getElementById('loading').style.display = 'none';
