@@ -3,24 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f4f6fa"> <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101014"> ```
-
----
-
-## Як це працює і як оновлювати
-
-**Це найважливіша частина!**
-
-1.  **Перше завантаження:** Коли ти завантажиш сайт з інтернетом, `sw.js` встановиться і **збереже всі файли** (`index.html`, CSS, JS) та **поточний `schedule.json`** у кеш.
-2.  **Офлайн-робота:** Тепер ти можеш вимкнути інтернет. Відкрий сайт. Він завантажиться *миттєво* з кешу. Коли він спробує завантажити `schedule.json`, Service Worker побачить, що інтернету немає, і **віддасть йоxому збережену копію**.
-3.  **Оновлення розкладу (Онлайн):** Ти прийшов додому, змінив `schedule.json` на своєму GitHub (чи де він лежить). Тепер ти відкриваєш сайт (з інтернетом).
-    * Сайт завантажується з кешу (швидко).
-    * Він робить запит до `schedule.json`.
-    * Service Worker (за нашою логікою "Network First") **йде в інтернет**, бачить там **новий файл**, завантажує його, **кладе в кеш (замінюючи старий)** і віддає сторінці.
-
-**Готово!** Тепер, коли ти знову підеш в універ з поганим інтернетом, у тебе в кеші вже буде лежати оновлений розклад.
-
-**ВАЖЛИВО:** Після того, як ти завантажиш ці 3 файли (`sw.js`, оновлені `script.js` та `index.html`), не забудь **один раз** зробити **жорстке перезавантаження** (`Ctrl+Shift+R`), щоб твій браузер зареєстрував новий `sw.js`.
+    <meta name="theme-color" content="#f4f6fa"> 
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101014">
     <title>Розклад занять ІВ-12</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📅</text></svg>">
     <link rel="manifest" href="data:application/json;base64,CnsKICAibmFtZSI6ICLQoNC+0LfQutC70LDQtCDQt9Cw0L3Rj9GC0Ywg0IbQki0xMiIsCiAgInNob3J0X25hbWUiOiAi0KDQvtC30LrQu9Cw0LQg0IbQki0xMiIsCiAgImljb25zIjogWwogICAgewogICAgICAic3JjIjogImRhdGE6aW1hZ2Uvc3ZnK3htbCw8c3ZnIHhtbG5zPVwiaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmdcIiB2aWV3Qm94PVwiMCAwIDEwMCAxMDBcIj48dGV4dCB5PVwiLjllbVwiIGZvbnQtc2l6ZT1cIjkwXCI+8J+ThTwvdGV4dD48L3N2Zz4iLAogICAgICAic2l6ZXMiOiAiMTkyeDE5MiIsCiAgICAgICJ0eXBlIjogImltYWdlL3N2Zyt4bWwiCiAgICB9CiAgXSwKICAic3RhcnRfdXJsIjogIi4vIiwKICAiZGlzcGxheSI6ICJmdWxsc2NyZWVuIiwKICAidGhlbWVfY29sb3IiOiAiIzNmNTFiNSIsCiAgImJhY2tncm91bmRfY29sb3IiOiAiI2Y0ZjZmYSIKfQo=">
@@ -103,4 +87,5 @@
     </footer>
 </body>
 </html>
+
 
