@@ -19,6 +19,9 @@
     --error-text: #721c24;
     --info-bg: #e2e3e5;
     --info-text: #383d41;
+    --muted: #6c757d; 
+    --accent-light: #eef2f9; /* Світлий фон для hover */
+    --accent-dark: #303f9f; /* Темний текст для hover */
 }
 
 body.dark-mode {
@@ -38,6 +41,9 @@ body.dark-mode {
     --error-text: #f5c6cb;
     --info-bg: #1e2023; /* Як картки */
     --info-text: #828282; /* Як вторинний текст */
+    --muted: #828282; /* Вторинний текст */
+    --accent-light: #282A30; /* Фон для hover (з модалки) */
+    --accent-dark: #fff176; /* Акцентний текст для hover (жовтий) */
 }
 
 /* === Загальні стилі === */
@@ -658,4 +664,5 @@ footer[style*="text-align: center"] {
     color: var(--muted);
     font-size: 0.9em;
 }
+
 
