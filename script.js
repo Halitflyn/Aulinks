@@ -99,7 +99,14 @@ function getISOWeek(date) {
 }
 
 function getCurrentType() {
+  const showNextWeek = document.getElementById('showNextWeek').checked;
   const now = new Date();
+  
+  // Якщо "Наступний тиждень" увімкнено, беремо дату +7 днів
+  if (showNextWeek) {
+    now.setDate(now.getDate() + 7);
+  }
+
   const startSemester = new Date(scheduleData?.startDate || '2025-09-08');
   const weekStart = getISOWeek(startSemester);
   const currentWeek = getISOWeek(now);
@@ -210,17 +217,19 @@ function generateLessonCard(lesson, dayKey) {
   }
 
   const mainContent = lesson.subgroups.length === 0 ? `
-    <p><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
-    <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + lesson.room : ''}</p>
+    <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
+    <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + sub.room : ''}</p>
   ` : '';
 
   return `
     <article class="${cardClass}" id="${lessonId}">
-      <h3>${lesson.number} пара</h3>
+      <h3>
+        ${lesson.number} пара
+        <button class="cancel-btn" title="Скасувати/повернути пару" data-lesson-id="${lessonId}">❌</button>
+      </h3>
       ${mainContent}
       ${subgroupsHtml}
       <p class="time">${lesson.time}</p>
-      <button class="cancel-btn" title="Скасувати/повернути пару" data-lesson-id="${lessonId}">×</button>
     </article>
   `;
 }
@@ -263,8 +272,7 @@ function filterSchedule() {
   const subgroup = document.getElementById('subgroupFilter').value;
   const showAll = document.getElementById('showAllWeeks').checked;
   const hideEmpty = document.getElementById('hideEmptyLessons').checked;
-  const hideCanceled = document.getElementById('hideCanceled').checked; // НОВА
-  const canceledLessonIds = loadCanceledLessons().asSet; // НОВА
+  const canceledLessonIds = loadCanceledLessons().asSet; 
   const currentType = getCurrentType();
   const cards = document.querySelectorAll('.card');
 
@@ -272,15 +280,45 @@ function filterSchedule() {
     const subgroups = card.querySelectorAll('.subgroup');
     let hasVisibleContent = false;
 
-    // --- НОВА ЛОГІКА СКАСУВАННЯ ---
+    // --- НОВА ЛОГІКА СКАСУВАННЯ (Початок) ---
     const isCanceled = canceledLessonIds.has(card.id);
-    card.classList.toggle('canceled', isCanceled); // Додає/видаляє клас для стилізації
+    card.classList.toggle('canceled', isCanceled);
 
-    if (hideCanceled && isCanceled) {
-      card.style.display = 'none';
-      return; // Переходимо до наступної картки
+    if (isCanceled) {
+      const timeEl = card.querySelector('.time');
+      if (timeEl) timeEl.style.display = 'none';
+
+      let emptyMsg = card.querySelector('.empty-message');
+      if (!emptyMsg) {
+        emptyMsg = document.createElement('p');
+        emptyMsg.className = 'empty-message';
+        card.querySelector('h3').insertAdjacentElement('afterend', emptyMsg);
+      }
+      emptyMsg.textContent = 'Скасовано';
+      emptyMsg.style.display = 'block';
+
+      // Ховаємо всі підгрупи
+      card.querySelectorAll('.subgroup').forEach(sub => sub.style.display = 'none');
+      // Ховаємо головний контент (якщо є)
+      const mainContent = card.querySelector('p[data-main-content]');
+      if (mainContent) mainContent.style.display = 'none';
+      const teacherRoom = card.querySelector('.teacher-room');
+      if (teacherRoom) teacherRoom.style.display = 'none';
+      
+      card.style.display = 'block'; // Переконуємось, що вона видима
+      card.classList.remove('empty'); // Вона не "порожня", вона "скасована"
+      return; // Більше нічого не фільтруємо, просто показуємо як "Скасовано"
+    } else {
+      // Якщо не скасована, переконуємось, що повідомлення "Скасовано" немає
+      let emptyMsg = card.querySelector('.empty-message');
+      if (emptyMsg && (emptyMsg.textContent === 'Скасовано' || emptyMsg.textContent === 'Немає')) {
+        emptyMsg.remove();
+      }
+      // І показуємо час (який може бути прихований логікою "порожньої" пари)
+      const timeEl = card.querySelector('.time');
+      if (timeEl) timeEl.style.display = 'block';
     }
-    // --- КІНЕЦЬ НОВОЇ ЛОГІКИ ---
+    // --- КІНЕЦЬ ЛОГІКИ СКАСУВАННЯ ---
 
     if (subgroups.length === 0) {
       // Картки без підгруп
@@ -289,6 +327,9 @@ function filterSchedule() {
         card.style.display = 'none';
       } else {
         card.style.display = 'block';
+        // Показуємо час, якщо картка не порожня (для пар без підгруп)
+        const timeEl = card.querySelector('.time');
+        if (timeEl && !isEmpty) timeEl.style.display = 'block';
       }
     } else {
       // Сховати всі subgroups спочатку
@@ -350,6 +391,20 @@ function filterSchedule() {
   labels.forEach(label => {
     label.style.display = showAll ? '' : 'none';
   });
+  
+  // Блокуємо "Наст. тиждень", якщо увімкнено "Показати всі тижні"
+  const nextWeekCheckbox = document.getElementById('showNextWeek');
+  const nextWeekLabel = document.getElementById('nextWeekLabel');
+  if (showAll) {
+    nextWeekCheckbox.checked = false;
+    nextWeekCheckbox.disabled = true;
+    nextWeekLabel.style.opacity = '0.5';
+    nextWeekLabel.style.cursor = 'not-allowed';
+  } else {
+    nextWeekCheckbox.disabled = false;
+    nextWeekLabel.style.opacity = '1';
+    nextWeekLabel.style.cursor = 'pointer';
+  }
 
   updateWeekInfo();
   highlightCurrentPair();
@@ -360,14 +415,26 @@ function filterSchedule() {
 // Оновлення інформації про тиждень
 function updateWeekInfo() {
   const showAll = document.getElementById('showAllWeeks').checked;
+  const showNextWeek = document.getElementById('showNextWeek').checked;
   const infoSpan = document.getElementById('currentWeekInfo');
+  
   if (showAll) {
     infoSpan.innerHTML = '';
   } else {
-    const type = getCurrentType();
-    const dates = getWeekDates(new Date());
+    const date = new Date();
+    if (showNextWeek) {
+      date.setDate(date.getDate() + 7);
+      infoSpan.style.color = '#9c27b0'; // Фіолетовий для "наступного"
+    } else {
+      infoSpan.style.color = ''; // Стандартний колір (успадкується)
+    }
+    
+    const type = getCurrentType(); // Вже враховує showNextWeek
+    const dates = getWeekDates(date);
     const typeName = type === 'num' ? 'Чисельник' : 'Знаменник';
-    infoSpan.innerHTML = `${typeName} (${dates.start.toLocaleDateString('uk-UA')} – ${dates.end.toLocaleDateString('uk-UA')})`;
+    const prefix = showNextWeek ? 'Наст. тиждень: ' : '';
+    
+    infoSpan.innerHTML = `${prefix}${typeName} (${dates.start.toLocaleDateString('uk-UA')} – ${dates.end.toLocaleDateString('uk-UA')})`;
   }
 }
 
@@ -410,7 +477,8 @@ function highlightToday() {
     section.classList.remove('today');
     if (section.id === todayKey) {
       section.classList.add('today');
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      // Прибираємо авто-скрол при завантаженні, щоб не заважав
+      // section.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   });
 
@@ -439,7 +507,7 @@ function highlightCurrentPair() {
   let minDiffToStart = Infinity;
 
   cards.forEach(card => {
-    if (card.style.display === 'none') return;
+    if (card.style.display === 'none' || card.classList.contains('canceled')) return;
 
     const timeP = card.querySelector('.time');
     if (!timeP || !timeP.textContent) return;
@@ -489,7 +557,7 @@ function highlightCurrentPair() {
 function collectTodayIntervals() {
   const todaySection = document.querySelector('.day.today');
   if (!todaySection) return [];
-  const cards = todaySection.querySelectorAll('.card:not(.empty)');
+  const cards = todaySection.querySelectorAll('.card:not(.empty):not(.canceled)');
   const intervals = [];
   
   cards.forEach(card => {
@@ -595,10 +663,10 @@ function loadSettings() {
   if (hideEmpty === 'true') {
     document.getElementById('hideEmptyLessons').checked = true;
   }
-  const hideCanceled = getCookie('hideCanceled'); // НОВЕ
-  if (hideCanceled === 'true') { // НОВЕ
-    document.getElementById('hideCanceled').checked = true; // НОВЕ
-  } // НОВЕ
+  const showNextWeek = getCookie('showNextWeek'); 
+  if (showNextWeek === 'true') { 
+    document.getElementById('showNextWeek').checked = true; 
+  }
 }
 
 // Збереження налаштувань
@@ -606,11 +674,11 @@ function saveSettings() {
   const subgroup = document.getElementById('subgroupFilter').value;
   const showAll = document.getElementById('showAllWeeks').checked;
   const hideEmpty = document.getElementById('hideEmptyLessons').checked;
-  const hideCanceled = document.getElementById('hideCanceled').checked; // НОВЕ
+  const showNextWeek = document.getElementById('showNextWeek').checked; 
   setCookie('subgroupFilter', subgroup);
   setCookie('showAllWeeks', showAll ? 'true' : 'false');
   setCookie('hideEmptyLessons', hideEmpty ? 'true' : 'false');
-  setCookie('hideCanceled', hideCanceled ? 'true' : 'false'); // НОВЕ
+  setCookie('showNextWeek', showNextWeek ? 'true' : 'false'); 
 }
 
 // Обробник кліку на кнопках скасування
@@ -655,7 +723,18 @@ function calculateStatistics() {
     let dayHasLessons = false;
     
     day.lessons.forEach(lesson => {
-      if (lesson.type !== 'empty' && lesson.subject) {
+      // Ігноруємо порожні пари
+      if (lesson.type === 'empty' || !lesson.subject) {
+        // Якщо в "порожній" парі є підгрупи (як у вас), все одно обробляємо їх
+         if (lesson.subgroups && lesson.subgroups.length > 0) {
+           // (Логіка нижче обробить підгрупи)
+         } else {
+            return; // Це справді порожня пара, пропускаємо
+         }
+      }
+
+      // Обробка головної пари (якщо вона не порожня)
+      if (lesson.subject) {
         totalLessons++;
         dayHasLessons = true;
         subjects.add(lesson.subject);
@@ -666,10 +745,13 @@ function calculateStatistics() {
           subjectTypes.set(lesson.subject, new Set());
         }
         subjectTypes.get(lesson.subject).add(lesson.type);
+      }
 
-        // Обробити підгрупи
+      // Обробити підгрупи
+      if (lesson.subgroups) {
         lesson.subgroups.forEach(sub => {
           if (sub.subject) {
+            dayHasLessons = true; // День зайнятий, якщо є хоч одна підгрупа
             subjects.add(sub.subject);
             if (sub.teacher) teachers.add(sub.teacher);
             
@@ -677,6 +759,11 @@ function calculateStatistics() {
               subjectTypes.set(sub.subject, new Set());
             }
             subjectTypes.get(sub.subject).add(sub.type);
+            
+            // Важлива зміна: рахуємо підгрупи як окремі пари, якщо немає головної
+            if (!lesson.subject) {
+                totalLessons++;
+            }
           }
         });
       }
@@ -711,7 +798,7 @@ async function initApp() {
   document.getElementById('subgroupFilter').addEventListener('change', filterSchedule);
   document.getElementById('showAllWeeks').addEventListener('change', filterSchedule);
   document.getElementById('hideEmptyLessons').addEventListener('change', filterSchedule);
-  document.getElementById('hideCanceled').addEventListener('change', filterSchedule); // НОВИЙ
+  document.getElementById('showNextWeek').addEventListener('change', filterSchedule); // НОВИЙ
   // Додаємо один обробник на весь контейнер для кнопок "x" (делегування подій)
   document.getElementById('schedule-container').addEventListener('click', handleCancelClick); // НОВИЙ
   // *** КІНЕЦЬ ВИПРАВЛЕННЯ ***
