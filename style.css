@@ -12,35 +12,39 @@
     --card-shadow: 0 4px 8px rgba(0,0,0,0.1);
     --border-color: #eee;
     --border-color-darker: #ccc;
-    --input-bg: #ffffff; /* Додано */
+    --input-bg: #ffffff;
     --success-bg: #d4edda;
     --success-text: #155724;
     --error-bg: #f8d7da;
     --error-text: #721c24;
     --info-bg: #e2e3e5;
     --info-text: #383d41;
+
+    /* Змінні, яких не вистачало (для світлої теми) */
     --muted: #6c757d; 
     --accent-light: #eef2f9; /* Світлий фон для hover */
     --accent-dark: #303f9f; /* Темний текст для hover */
 }
 
 body.dark-mode {
-    --bg-primary: #101014; /* Твій вугільний фон */
-    --text-primary: #fff;
-    --text-secondary: #828282; /* М'який сірий (взято з твого стилю модалки) */
-    --accent-primary: #fff176; /* Жовтий акцент (взято з кнопки "Редактор") */
-    --accent-secondary: #282A30; /* Темний фон для заголовків (взято з модалки) */
-    --card-bg: #1e2023; /* Твій фон для карток/кнопок */
-    --card-shadow: 0 4px 8px rgba(0,0,0,0.3); /* Тінь трохи темніша, щоб було видно */
-    --border-color: #282A30; /* Колір рамок (взято з модалки) */
-    --border-color-darker: #282A30; /* Теж саме */
-    --input-bg: #1e2023; /* Поля вводу = фон карток */
-    --success-bg: #2d5a3a; /* (Поки залишив старі, вони окей) */
-    --success-text: #c3e6cb;
-    --error-bg: #5a2d2d; /* (Поки залишив старі, вони окей) */
-    --error-text: #f5c6cb;
-    --info-bg: #1e2023; /* Як картки */
-    --info-text: #828282; /* Як вторинний текст */
+    --bg-primary: #101014; /* Твій вугільний фон */
+    --text-primary: #fff;
+    --text-secondary: #828282; /* М'який сірий */
+    --accent-primary: #fff176; /* Жовтий акцент */
+    --accent-secondary: #282A30; /* Темний фон для заголовків */
+    --card-bg: #1e2023; /* Твій фон для карток/кнопок */
+    --card-shadow: 0 4px 8px rgba(0,0,0,0.3);
+    --border-color: #282A30; 
+    --border-color-darker: #282A30;
+    --input-bg: #1e2023;
+    --success-bg: #2d5a3a;
+    --success-text: #c3e6cb;
+    --error-bg: #5a2d2d;
+    --error-text: #f5c6cb;
+    --info-bg: #1e2023;
+    --info-text: #828282;
+
+    /* Змінні, яких не вистачало (для темної теми) */
     --muted: #828282; /* Вторинний текст */
     --accent-light: #282A30; /* Фон для hover (з модалки) */
     --accent-dark: #fff176; /* Акцентний текст для hover (жовтий) */
@@ -664,5 +668,6 @@ footer[style*="text-align: center"] {
     color: var(--muted);
     font-size: 0.9em;
 }
+
 
 
