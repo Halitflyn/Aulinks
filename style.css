@@ -647,31 +647,28 @@ body.dark-mode .card.canceled .empty-message {
   color: #bbdefb;
 }
 
-/* --------------------------------- */
-
 /* --- Стилі для Налаштувань та Модального вікна --- */
 .settings-btn {
-  position: fixed;
-  bottom: 20px;
-  right: 20px;
-  width: 50px;
-  height: 50px;
-  border-radius: 50%;
-  border: none;
+  /* Нові стилі для кнопки в фільтрах */
   background: #3f51b5;
   color: white;
-  font-size: 24px;
+  border: none;
+  border-radius: 4px;
+  padding: 5px 10px; /* Робимо кнопку схожою на фільтри */
+  font-size: 14px;
+  font-weight: bold;
   cursor: pointer;
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-  z-index: 199;
-  transition: transform 0.2s;
+  transition: background 0.2s;
 }
 .settings-btn:hover {
-  transform: scale(1.1);
+  background: #303f9f;
 }
 body.dark-mode .settings-btn {
   background: #bbdefb;
   color: #222;
+}
+body.dark-mode .settings-btn:hover {
+  background: #a6cffb;
 }
 
 .modal {
@@ -763,3 +760,4 @@ body.dark-mode .modal-close:focus {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
