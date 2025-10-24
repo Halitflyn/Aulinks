@@ -195,8 +195,8 @@ body.dark-mode #currentWeekInfo {
   margin-bottom: 40px;
 }
 
-.day section {
-  scroll-margin-top: 60px;
+section.day {
+  scroll-margin-top: 60px;
 }
 
 .day h2 {
@@ -389,9 +389,23 @@ body.dark-mode .subgroup .subgroup-label.sub2 {
   color: #ce93d8;
 }
 
-.subgroup .num-label {
-  color: #28a745;
+/* === *** ПОЧАТОК ВИПРАВЛЕННЯ 2 (Кольори) *** === */
+.week-label.num-label {
+  color: #28a745; /* Зелений */
+  font-weight: bold;
 }
+.week-label.den-label {
+  color: #9c27b0; /* Фіолетовий */
+  font-weight: bold;
+}
+
+body.dark-mode .week-label.num-label {
+  color: #4caf50;
+}
+body.dark-mode .week-label.den-label {
+  color: #ce93d8;
+}
+/* === *** КІНЕЦЬ ВИПРАВЛЕННЯ 2 *** === */
 
 body.dark-mode .subgroup .num-label {
   color: #4caf50;
@@ -634,4 +648,5 @@ body.dark-mode .card.canceled .empty-message {
 }
 
 /* --------------------------------- */
+
 
