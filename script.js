@@ -794,3 +794,16 @@ const minuteUpdater = setInterval(() => {
 
 // Обробка зміни розміру екрану
 window.addEventListener('resize', updateNavText);
+
+// Реєструємо Service Worker, коли сторінка завантажилась
+window.addEventListener('load', () => {
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('./sw.js')
+            .then((registration) => {
+                console.log('Service Worker зареєстровано успішно:', registration);
+            })
+            .catch((error) => {
+                console.error('Помилка реєстрації Service Worker:', error);
+            });
+    }
+});
