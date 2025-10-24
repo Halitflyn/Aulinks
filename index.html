@@ -31,23 +31,6 @@
   <!-- Футер з заголовком і фільтрами -->
   <footer>
     <h1 id="schedule-title">Розклад занять</h1>
-<div class="filters">
-      <label>Підгрупа: </label>
-      <select id="subgroupFilter">
-        <option value="all">Усі</option>
-        <option value="sub1">Підгрупа 1</option>
-        <option value="sub2">Підгрупа 2</option>
-      </select>
-      <label style="margin-left: 20px;">
-        <input type="checkbox" id="showAllWeeks"> Показати всі тижні
-      </label>
-      <label style="margin-left: 20px;">
-        <input type="checkbox" id="hideEmptyLessons"> Приховати порожні пари
-      </label>
-      <label style="margin-left: 20px;" id="nextWeekLabel">
-        <input type="checkbox" id="showNextWeek"> Показати наст. тиждень
-      </label>
-      <span id="currentWeekInfo"></span>
   <div class="filters">
       <label>Підгрупа: </label>
       <select id="subgroupFilter">
@@ -102,11 +85,11 @@
     <div class="modal-actions">
   <input type="file" id="importFile" accept=".json" style="display: none;">
 
-  <a href="./editor.html" class="modal-btn editor" style="text-align: center; text-decoration: none;">✏️ Редактор розкладу</a>
+  <a href="./editor.html" class="modal-btn editor" style="text-align: center; text-decoration: none;">Редактор розкладу</a>
 
-  <button class="modal-btn import" id="importBtn">⬆️ Імпорт (.json)</button>
-  <button class="modal-btn export" id="exportBtn">⬇️ Експорт (Шаблон)</button>
-  <button class="modal-btn delete" id="deleteBtn">🗑️ Видалити мій розклад</button>
+  <button class="modal-btn import" id="importBtn">Імпорт (.json)</button>
+  <button class="modal-btn export" id="exportBtn">Експорт (Шаблон)</button>
+  <button class="modal-btn delete" id="deleteBtn">Видалити мій розклад</button>
 </div>
     <div id="importStatus"></div>
   </div>
@@ -114,6 +97,7 @@
 </body>
 
 </html>
+
 
 
 
