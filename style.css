@@ -569,4 +569,59 @@ footer h1 {
 
 body.dark-mode footer h1 {
   color: #bbdefb;
+
 }
+/* --- Стилі для скасування пар --- */
+
+.card {
+  /* Додаємо position: relative, щоб кнопка позиціонувалась відносно картки */
+  position: relative;
+}
+
+.cancel-btn {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  width: 24px;
+  height: 24px;
+  background: #f44336;
+  color: white;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 16px;
+  line-height: 24px;
+  text-align: center;
+  opacity: 0.3;
+  transition: opacity 0.2s;
+}
+
+.card:hover .cancel-btn {
+  opacity: 1;
+}
+
+.card.empty .cancel-btn {
+  /* Ховаємо кнопку на порожніх парах */
+  display: none;
+}
+
+.card.canceled {
+  /* Стиль для скасованої пари, коли "Приховати скасовані" вимкнено */
+  opacity: 0.5;
+  border: 2px dashed #f44336;
+  background: #ffebee;
+}
+
+body.dark-mode .card.canceled {
+  background: #4a2d2d;
+  border-color: #f44336;
+}
+
+.card.canceled .cancel-btn {
+  /* Робимо кнопку "активною" на скасованій парі */
+  opacity: 1;
+  background: #c62828;
+}
+
+/* --------------------------------- */
