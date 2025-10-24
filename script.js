@@ -830,6 +830,12 @@ function initModal() {
   const deleteBtn = document.getElementById('deleteBtn');
   const statusEl = document.getElementById('importStatus');
 
+  // Перевірка, чи всі елементи знайдено
+  if (!modal || !btn || !closeBtn || !importBtn || !importFile || !exportBtn || !deleteBtn || !statusEl) {
+      console.error('Не вдалося ініціалізувати модальне вікно. Відсутні деякі елементи.');
+      return;
+  }
+
   // Відкрити модальне вікно
   btn.onclick = () => {
     modal.style.display = 'block';
@@ -878,6 +884,11 @@ function initModal() {
   // 2. Експорт
   exportBtn.onclick = () => {
     // Ми експортуємо поточні завантажені дані (`scheduleData`)
+    if (!scheduleData) {
+        statusEl.textContent = '❌ Помилка! Дані розкладу ще не завантажено.';
+        statusEl.style.color = '#d32f2f';
+        return;
+    }
     const dataStr = JSON.stringify(scheduleData, null, 2); // 'null, 2' для гарного форматування
     const dataBlob = new Blob([dataStr], {type: 'application/json'});
     const url = URL.createObjectURL(dataBlob);
