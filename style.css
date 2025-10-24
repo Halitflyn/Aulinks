@@ -273,35 +273,39 @@ body.dark-mode .settings-btn:hover {
 }
 
 /* === Тема (кнопка справа зверху) === */
+/* Початковий вигляд — паличка */
 .theme-toggle {
   position: fixed;
-  top: 15px; /* Трохи нижче */
-  right: 15px;
-  width: 40px; /* Зменшив */
-  height: 40px;
-  background: var(--card-bg); /* Фон картки */
-  border: 1px solid var(--border-color); /* Рамка */
-  border-radius: 50%;
+  top: 120px;
+  right: 0;
+  width: 12px;
+  height: 60px;
+  background: #9c27b0;
+  border: none;
+  border-radius: 8px 0 0 8px;
   cursor: pointer;
   z-index: 200;
-  transition: all 0.3s ease; /* Плавніший перехід */
+  transition: all 0.5s ease;
   overflow: hidden;
   padding: 0;
-  color: var(--text-secondary); /* Колір іконки */
-  font-size: 20px; /* Розмір іконки */
-  display: flex; /* Центрування іконки */
-  justify-content: center;
-  align-items: center;
-  box-shadow: var(--card-shadow); /* Тінь */
+  color: white;
+  font-weight: bold;
+  font-size: 14px;
 }
-.theme-toggle:hover {
-    transform: scale(1.1);
-    box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+
+/* Коли стає круглою кнопкою */
+.theme-toggle.expanded {
+  right: 20px;
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  text-align: center;
+  line-height: 60px;
 }
-body.dark-mode .theme-toggle:hover {
-    box-shadow: 0 6px 12px rgba(255,255,255,0.15);
-}
-/* Стилі expanded/green/yellow/purple більше не потрібні */
+
+.theme-toggle.green { background: #28a745; }
+.theme-toggle.yellow { background: #ffc107; color: #222; }
+.theme-toggle.purple { background: #9c27b0; }
 
 
 /* === Розклад: Дні та Картки === */
