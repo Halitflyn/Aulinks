@@ -31,21 +31,21 @@
   <!-- Футер з заголовком і фільтрами -->
   <footer>
     <h1 id="schedule-title">Розклад занять</h1>
-    <div class="filters">
-      <label>Підгрупа: </label>
-      <select id="subgroupFilter" onchange="filterSchedule()">
-        <option value="all">Усі</option>
-        <option value="sub1">Підгрупа 1</option>
-        <option value="sub2">Підгрупа 2</option>
-      </select>
-      <label style="margin-left: 20px;">
-        <input type="checkbox" id="showAllWeeks" onchange="filterSchedule()"> Показати всі тижні
-      </label>
-      <label style="margin-left: 20px;">
-        <input type="checkbox" id="hideEmptyLessons" onchange="filterSchedule()"> Приховати порожні пари
-      </label>
-      <span id="currentWeekInfo"></span>
-    </div>
+<div class="filters">
+      <label>Підгрупа: </label>
+      <select id="subgroupFilter">
+        <option value="all">Усі</option>
+        <option value="sub1">Підгрупа 1</option>
+        <option value="sub2">Підгрупа 2</option>
+      </select>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="showAllWeeks"> Показати всі тижні
+      </label>
+      <label style="margin-left: 20px;">
+        <input type="checkbox" id="hideEmptyLessons"> Приховати порожні пари
+      </label>
+      <span id="currentWeekInfo"></span>
+    </div>
 
     <!-- Звіти та статистика -->
     <div class="reports">
@@ -82,4 +82,5 @@
     <p>Сайт створив Halitflyn © 2025 | Оновлено з JSON структурою</p>
   </footer>
 </body>
+
 </html>
