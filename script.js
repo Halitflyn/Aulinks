@@ -139,6 +139,7 @@ async function loadScheduleData() {
       <div style="color: #d32f2f; text-align: center;">
         <h3>❌ Помилка завантаження</h3>
         <p>Не вдалося завантажити дані розкладу. Спробуйте оновити сторінку.</p>
+        <p style="font-size: 0.8em; color: #666;">(Можлива помилка в schedule.json)</p>
       </div>
     `;
     return null;
@@ -188,21 +189,33 @@ function generateSchedule() {
 }
 
 function generateLessonCard(lesson, dayKey) {
-  const isEmpty = lesson.type === 'empty' || !lesson.subject;
-  const cardClass = isEmpty ? 'card empty' : `card ${lesson.type}`;
+  // *** ВИПРАВЛЕННЯ ЛОГІКИ ПОРОЖНІХ ПАР ***
+  // Пара вважається порожньою, ТІЛЬКИ ЯКЩО в ній немає ані головного предмету, ані підгруп.
+  const hasSubgroups = lesson.subgroups && lesson.subgroups.length > 0;
+  const isEmpty = (lesson.type === 'empty' || !lesson.subject) && !hasSubgroups;
+
+  let cardClass = isEmpty ? 'card empty' : `card ${lesson.type}`;
+  
+  // Додаємо клас тижня, якщо пара *не* ділиться на підгрупи (інакше тиждень на самих підгрупах)
+  if (!hasSubgroups && lesson.weeks) {
+      if (lesson.weeks === 'num' || lesson.weeks === 'den') {
+          cardClass += ` numden ${lesson.weeks}`;
+      }
+  }
+  
   const lessonId = `lesson-${dayKey}-${lesson.number}`; // Унікальний ID
   
   if (isEmpty) {
     return `
       <article class="${cardClass}" id="${lessonId}">
         <h3>${lesson.number} пара</h3>
-        <p>Немає</p>
+        <p class="empty-message">Немає</p>
       </article>
     `;
   }
 
   let subgroupsHtml = '';
-  if (lesson.subgroups && lesson.subgroups.length > 0) {
+  if (hasSubgroups) {
     subgroupsHtml = lesson.subgroups.map(sub => {
       const subClass = getSubgroupClass(sub);
       const subLabel = getSubgroupLabel(sub);
@@ -216,9 +229,11 @@ function generateLessonCard(lesson, dayKey) {
     }).join('');
   }
 
-  const mainContent = lesson.subgroups.length === 0 ? `
+  // Показуємо головний контент, ТІЛЬКИ ЯКЩО є `lesson.subject`
+  // (Якщо `subject` порожній, але є підгрупи, `mainContent` буде порожнім)
+  const mainContent = lesson.subject ? `
     <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
-    <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + sub.room : ''}</p>
+    <p class="teacher-room">${lesson.teacher}${lesson.room ? ', ' + lesson.room : ''}</p>
   ` : '';
 
   return `
@@ -267,7 +282,7 @@ function getTypeLabel(type) {
   return types[type] || type;
 }
 
-// Фільтрація розкладу
+// Фільтрація розкладу (ПОВНІСТЮ ОНОВЛЕНА ЛОГІКА)
 function filterSchedule() {
   const subgroup = document.getElementById('subgroupFilter').value;
   const showAll = document.getElementById('showAllWeeks').checked;
@@ -277,18 +292,17 @@ function filterSchedule() {
   const cards = document.querySelectorAll('.card');
 
   cards.forEach(card => {
+    let emptyMsg = card.querySelector('.empty-message');
+    const timeEl = card.querySelector('.time');
+    const mainContentEl = card.querySelector('p[data-main-content]');
+    const teacherRoomEl = card.querySelector('.teacher-room');
     const subgroups = card.querySelectorAll('.subgroup');
-    let hasVisibleContent = false;
 
-    // --- НОВА ЛОГІКА СКАСУВАННЯ (Початок) ---
+    // --- 1. ОБРОБКА СКАСОВАНИХ ПАР ---
     const isCanceled = canceledLessonIds.has(card.id);
     card.classList.toggle('canceled', isCanceled);
 
     if (isCanceled) {
-      const timeEl = card.querySelector('.time');
-      if (timeEl) timeEl.style.display = 'none';
-
-      let emptyMsg = card.querySelector('.empty-message');
       if (!emptyMsg) {
         emptyMsg = document.createElement('p');
         emptyMsg.className = 'empty-message';
@@ -296,49 +310,58 @@ function filterSchedule() {
       }
       emptyMsg.textContent = 'Скасовано';
       emptyMsg.style.display = 'block';
-
-      // Ховаємо всі підгрупи
-      card.querySelectorAll('.subgroup').forEach(sub => sub.style.display = 'none');
-      // Ховаємо головний контент (якщо є)
-      const mainContent = card.querySelector('p[data-main-content]');
-      if (mainContent) mainContent.style.display = 'none';
-      const teacherRoom = card.querySelector('.teacher-room');
-      if (teacherRoom) teacherRoom.style.display = 'none';
       
-      card.style.display = 'block'; // Переконуємось, що вона видима
-      card.classList.remove('empty'); // Вона не "порожня", вона "скасована"
-      return; // Більше нічого не фільтруємо, просто показуємо як "Скасовано"
-    } else {
-      // Якщо не скасована, переконуємось, що повідомлення "Скасовано" немає
-      let emptyMsg = card.querySelector('.empty-message');
-      if (emptyMsg && (emptyMsg.textContent === 'Скасовано' || emptyMsg.textContent === 'Немає')) {
-        emptyMsg.remove();
-      }
-      // І показуємо час (який може бути прихований логікою "порожньої" пари)
-      const timeEl = card.querySelector('.time');
-      if (timeEl) timeEl.style.display = 'block';
-    }
-    // --- КІНЕЦЬ ЛОГІКИ СКАСУВАННЯ ---
-
-    if (subgroups.length === 0) {
-      // Картки без підгруп
-      const isEmpty = card.classList.contains('empty');
-      if (hideEmpty && isEmpty) {
-        card.style.display = 'none';
-      } else {
-        card.style.display = 'block';
-        // Показуємо час, якщо картка не порожня (для пар без підгруп)
-        const timeEl = card.querySelector('.time');
-        if (timeEl && !isEmpty) timeEl.style.display = 'block';
-      }
-    } else {
-      // Сховати всі subgroups спочатку
+      // Ховаємо все інше
+      if (timeEl) timeEl.style.display = 'none';
+      if (mainContentEl) mainContentEl.style.display = 'none';
+      if (teacherRoomEl) teacherRoomEl.style.display = 'none';
       subgroups.forEach(sub => sub.style.display = 'none');
       
-      // Знайти елементи, які ми будемо ховати/показувати
-      const timeEl = card.querySelector('.time');
-      let emptyMsg = card.querySelector('.empty-message');
+      card.style.display = 'block';
+      card.classList.remove('empty');
+      return; // Закінчуємо обробку цієї картки
+    }
 
+    // --- 2. ЯКЩО НЕ СКАСОВАНА - СКИДАЄМО СТАН ---
+    if (emptyMsg) {
+      if (emptyMsg.textContent === 'Скасовано') {
+        emptyMsg.remove(); // Видаляємо "Скасовано"
+        emptyMsg = null; // Скидаємо, щоб логіка нижче могла створити "Немає"
+      } else if (emptyMsg.textContent === 'Немає') {
+        emptyMsg.style.display = 'none'; // Ховаємо "Немає"
+      }
+    }
+    // Показуємо елементи за замовчуванням (якщо вони існують)
+    if (timeEl) timeEl.style.display = 'block';
+    if (mainContentEl) mainContentEl.style.display = 'block';
+    if (teacherRoomEl) teacherRoomEl.style.display = 'block';
+    
+    // --- 3. ЛОГІКА ФІЛЬТРАЦІЇ ---
+    let hasVisibleContent = false;
+
+    // Перевірка головного контенту (якщо він є)
+    if (mainContentEl) {
+      let mainVisible = true;
+      // Фільтр тижня для головної пари
+      if (!showAll) {
+        const weekType = card.classList.contains('num') ? 'num' : 
+                         (card.classList.contains('den') ? 'den' : 'all');
+        if (weekType !== 'all' && weekType !== currentType) {
+          mainVisible = false;
+        }
+      }
+      // (Тут можна додати фільтр підгруп для mainContent, якщо потрібно)
+      
+      if (mainVisible) {
+        hasVisibleContent = true;
+      } else {
+        mainContentEl.style.display = 'none';
+        if (teacherRoomEl) teacherRoomEl.style.display = 'none';
+      }
+    }
+
+    // Перевірка підгруп (якщо вони є)
+    if (subgroups.length > 0) {
       subgroups.forEach(sub => {
         let visible = true;
 
@@ -359,33 +382,41 @@ function filterSchedule() {
         sub.style.display = visible ? 'block' : 'none';
         if (visible) hasVisibleContent = true;
       });
+    }
+    
+    // Якщо це *була* порожня картка (з `class="empty"`), в ній немає контенту
+    if (card.classList.contains('empty')) {
+        hasVisibleContent = false;
+    }
 
-      // --- ОСЬ ГОЛОВНЕ ВИПРАВЛЕННЯ ---
-      if (hasVisibleContent) {
-        card.classList.remove('empty');
-        card.style.display = 'block';
-        
-        // Показати час і видалити "Немає", якщо воно було
-        if (timeEl) timeEl.style.display = 'block';
-        if (emptyMsg) emptyMsg.remove();
-        
+    // --- 4. ФІНАЛЬНИЙ СТАН (КОНТЕНТ / ПОРОЖНЬО) ---
+    if (hasVisibleContent) {
+      card.classList.remove('empty');
+      card.style.display = 'block';
+      if (timeEl) timeEl.style.display = 'block';
+      if (emptyMsg) emptyMsg.style.display = 'none'; // Ховаємо "Немає"
+    } else {
+      // Стала порожньою
+      card.classList.add('empty');
+      if (timeEl) timeEl.style.display = 'none';
+      
+      if (!emptyMsg) {
+        emptyMsg = document.createElement('p');
+        emptyMsg.className = 'empty-message';
+        card.querySelector('h3').insertAdjacentElement('afterend', emptyMsg);
+      }
+      emptyMsg.textContent = 'Немає';
+      emptyMsg.style.display = 'block';
+
+      if (hideEmpty) {
+        card.style.display = 'none';
       } else {
-        card.classList.add('empty');
-        card.style.display = hideEmpty ? 'none' : 'block';
-        
-        // Приховати час і додати "Немає", якщо його ще немає
-        if (timeEl) timeEl.style.display = 'none';
-        if (!emptyMsg) {
-          emptyMsg = document.createElement('p');
-          emptyMsg.className = 'empty-message';
-          emptyMsg.textContent = 'Немає';
-          // Додаємо <p>Немає</p> одразу після <h3> (номера пари)
-          card.querySelector('h3').insertAdjacentElement('afterend', emptyMsg);
-        }
+        card.style.display = 'block';
       }
     }
   });
 
+  // --- 5. ОНОВЛЕННЯ ІНТЕРФЕЙСУ ---
   // Приховувати лейбли чисельник/знаменник при автоматичному режимі
   const labels = document.querySelectorAll('.num-label, .den-label');
   labels.forEach(label => {
@@ -411,6 +442,7 @@ function filterSchedule() {
   saveSettings();
   generateReports(); // Оновити звіти після фільтрації
 }
+
 
 // Оновлення інформації про тиждень
 function updateWeekInfo() {
@@ -699,19 +731,25 @@ function generateReports() {
   const stats = calculateStatistics();
   
   // Оновити статистичні картки
-  document.getElementById('totalLessons').textContent = stats.totalLessons;
+  const totalLessonsEl = document.getElementById('totalLessons');
+  if (totalLessonsEl) {
+    totalLessonsEl.textContent = stats.totalLessons;
+  }
 
   // Генерувати розбивку по предметах
   const subjectsBreakdown = document.getElementById('subjectsBreakdown');
-  subjectsBreakdown.innerHTML = Array.from(stats.subjectTypes.entries())
-    .map(([subject, types]) => `
-      <div class="subject-item">
-        <div class="subject-name">${subject}</div>
-        <div class="subject-types">${Array.from(types).map(getTypeLabel).join(', ')}</div>
-      </div>
-    `).join('');
+  if (subjectsBreakdown) {
+      subjectsBreakdown.innerHTML = Array.from(stats.subjectTypes.entries())
+        .map(([subject, types]) => `
+          <div class="subject-item">
+            <div class="subject-name">${subject}</div>
+            <div class="subject-types">${Array.from(types).map(getTypeLabel).join(', ')}</div>
+          </div>
+        `).join('');
+  }
 }
 
+// Оновлена функція статистики
 function calculateStatistics() {
   const subjects = new Set();
   const teachers = new Set();
@@ -723,22 +761,23 @@ function calculateStatistics() {
     let dayHasLessons = false;
     
     day.lessons.forEach(lesson => {
-      // Ігноруємо порожні пари
-      if (lesson.type === 'empty' || !lesson.subject) {
-        // Якщо в "порожній" парі є підгрупи (як у вас), все одно обробляємо їх
-         if (lesson.subgroups && lesson.subgroups.length > 0) {
-           // (Логіка нижче обробить підгрупи)
-         } else {
-            return; // Це справді порожня пара, пропускаємо
-         }
-      }
+      const hasSubgroups = lesson.subgroups && lesson.subgroups.length > 0;
+      // Використовуємо ту саму логіку, що й у generateLessonCard
+      const isEmpty = (lesson.type === 'empty' || !lesson.subject) && !hasSubgroups;
 
-      // Обробка головної пари (якщо вона не порожня)
+      if (isEmpty) {
+        return; // Справді порожня пара, пропускаємо
+      }
+      
+      let lessonCounted = false;
+
+      // Обробка головної пари (якщо вона є)
       if (lesson.subject) {
-        totalLessons++;
         dayHasLessons = true;
-        subjects.add(lesson.subject);
+        totalLessons++; // Рахуємо як 1 пару
+        lessonCounted = true;
         
+        subjects.add(lesson.subject);
         if (lesson.teacher) teachers.add(lesson.teacher);
         
         if (!subjectTypes.has(lesson.subject)) {
@@ -748,10 +787,10 @@ function calculateStatistics() {
       }
 
       // Обробити підгрупи
-      if (lesson.subgroups) {
+      if (hasSubgroups) {
         lesson.subgroups.forEach(sub => {
           if (sub.subject) {
-            dayHasLessons = true; // День зайнятий, якщо є хоч одна підгрупа
+            dayHasLessons = true; 
             subjects.add(sub.subject);
             if (sub.teacher) teachers.add(sub.teacher);
             
@@ -760,9 +799,11 @@ function calculateStatistics() {
             }
             subjectTypes.get(sub.subject).add(sub.type);
             
-            // Важлива зміна: рахуємо підгрупи як окремі пари, якщо немає головної
-            if (!lesson.subject) {
+            // Якщо не було головної пари, рахуємо першу підгрупу як 1 пару
+            // Це для "змішаних" пар, щоб вони не рахувались як 2-3 окремі пари
+            if (!lessonCounted) {
                 totalLessons++;
+                lessonCounted = true; // Рахуємо "змішану" пару лише один раз
             }
           }
         });
@@ -780,6 +821,7 @@ function calculateStatistics() {
     busyDays
   };
 }
+
 
 // Ініціалізація додатку
 async function initApp() {
