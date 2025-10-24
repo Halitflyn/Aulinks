@@ -750,6 +750,34 @@ body.dark-mode .modal-close:focus {
   color: white;
 }
 
+/* Стиль для кнопки Редактора в модальному вікні */
+.modal-btn.editor {
+  background-color: #ffc107; /* Жовтий */
+  color: #222; /* Темний текст */
+  order: -1; /* Ставимо її першою візуально */
+  margin-bottom: 15px; /* Додатковий відступ знизу */
+}
+.modal-btn.editor:hover {
+  background-color: #ffb600; /* Темніший жовтий при наведенні */
+  opacity: 1; /* Забираємо стандартний hover-ефект прозорості */
+}
+
+/* Додатковий стиль для темної теми */
+body.dark-mode .modal-btn.editor {
+  background-color: #fff176; /* Світліший жовтий */
+  color: #222;
+}
+body.dark-mode .modal-btn.editor:hover {
+   background-color: #eee169;
+}
+
+/* Можливо, треба трохи збільшити відступи між кнопками */
+.modal-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px; /* Трохи збільшив gap */
+}
+
 #importStatus {
   margin-top: 15px;
   font-weight: bold;
@@ -760,4 +788,5 @@ body.dark-mode .modal-close:focus {
   from { opacity: 0; }
   to { opacity: 1; }
 }
+
 
