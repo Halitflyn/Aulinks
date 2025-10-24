@@ -573,32 +573,29 @@ body.dark-mode footer h1 {
 }
 /* --- Стилі для скасування пар --- */
 
-.card {
-  /* Додаємо position: relative, щоб кнопка позиціонувалась відносно картки */
-  position: relative;
+/* --- Стилі для скасування пар --- */
+
+.card h3 {
+  /* Дозволяємо кнопці бути в одному рядку */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
 .cancel-btn {
-  position: absolute;
-  top: 5px;
-  right: 5px;
-  width: 24px;
-  height: 24px;
-  background: #f44336;
-  color: white;
-  border: none;
-  border-radius: 50%;
-  cursor: pointer;
-  font-weight: bold;
-  font-size: 16px;
-  line-height: 24px;
-  text-align: center;
-  opacity: 0.3;
-  transition: opacity 0.2s;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px; /* Розмір емодзі */
+  opacity: 0.3;
+  transition: opacity 0.2s;
+  padding: 0 5px;
+  line-height: 1;
 }
 
-.card:hover .cancel-btn {
-  opacity: 1;
+.card:hover .cancel-btn,
+.card.canceled .cancel-btn {
+  opacity: 1;
 }
 
 .card.empty .cancel-btn {
@@ -607,21 +604,34 @@ body.dark-mode footer h1 {
 }
 
 .card.canceled {
-  /* Стиль для скасованої пари, коли "Приховати скасовані" вимкнено */
-  opacity: 0.5;
-  border: 2px dashed #f44336;
-  background: #ffebee;
+  /* Новий синій стиль для скасованої пари */
+  background: #e3f2fd;
+  border-left: 5px solid #1e88e5;
 }
 
 body.dark-mode .card.canceled {
-  background: #4a2d2d;
-  border-color: #f44336;
+  background: #2a3947;
+  border-left-color: #bbdefb;
 }
 
-.card.canceled .cancel-btn {
-  /* Робимо кнопку "активною" на скасованій парі */
-  opacity: 1;
-  background: #c62828;
+/* Ховаємо вміст картки, коли вона скасована, але показуємо повідомлення */
+.card.canceled .subgroup,
+.card.canceled .time,
+.card.canceled .teacher-room,
+.card.canceled p[data-main-content] {
+  display: none;
+}
+
+/* Стиль для повідомлення "Скасовано" */
+.card.canceled .empty-message {
+  color: #1e88e5;
+  font-weight: bold;
+  font-size: 16px;
+}
+
+body.dark-mode .card.canceled .empty-message {
+  color: #bbdefb;
 }
 
 /* --------------------------------- */
+
