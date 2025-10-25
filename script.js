@@ -357,6 +357,85 @@ function filterSchedule() {
 
     updateWeekInfo();
     highlightCurrentPair();
+  // --- Допоміжна функція: Перевіряє, чи є пари в цей день ---
+function dayHasClasses(dayKey) {
+  // Перевіряємо, чи існує такий день в нашому JSON
+  if (!scheduleData || !scheduleData.schedule || !scheduleData.schedule[dayKey]) {
+    return false; // Такого дня немає (наприклад, 'sunday')
+  }
+  const lessons = scheduleData.schedule[dayKey].lessons;
+  if (!lessons || lessons.length === 0) {
+    return false;
+  }
+  
+  // .some() поверне true, якщо ХОЧА Б ОДНА пара не є 'empty'
+  // (тобто має 'subject' або підгрупи)
+  return lessons.some(lesson => lesson.type !== 'empty');
+}
+
+// --- Головна функція: Прокрутка до потрібного дня при завантаженні ---
+function scrollToCorrectDay() {
+  const dayKeys = [
+    'sunday',    // 0
+    'monday',    // 1
+    'tuesday',   // 2
+    'wednesday', // 3
+    'thursday',  // 4
+    'friday',    // 5
+    'saturday'   // 6
+  ];
+  
+  const todayIndex = new Date().getDay();
+  let targetKey = dayKeys[todayIndex]; // Починаємо з 'сьогодні' (напр. 'tuesday')
+
+  // Правило 4: Виняток для П'ятниці.
+  // Якщо сьогодні п'ятниця, ми ЗАВЖДИ відкриваємо п'ятницю,
+  // незалежно від того, чи є там пари.
+  if (targetKey === 'friday') {
+    console.log('Сьогодні п\'ятниця, відкриваємо п\'ятницю.');
+    scrollToDay('friday');
+    return;
+  }
+
+  // Правило 2: Перевіряємо 'сьогодні'
+  // (Це покриває твій випадок про 5:00 ранку. Якщо пари є, день відкриється)
+  if (dayHasClasses(targetKey)) {
+    console.log('Сьогодні є пари, відкриваємо:', targetKey);
+    scrollToDay(targetKey);
+    return;
+  }
+
+  // Правило 3: 'Сьогодні' пар немає (напр. 'saturday' або 'sunday').
+  // Шукаємо наступний день.
+  console.log('Сьогодні пар немає, шукаємо наступний день...');
+  let nextDayIndex = (todayIndex + 1) % 7; // Починаємо з завтра (напр. 0 - 'sunday')
+
+  for (let i = 0; i < 7; i++) {
+    const nextDayKey = dayKeys[nextDayIndex];
+
+    // Якщо наступний день - це П'ятниця (і ми дійшли до неї),
+    // ми зупиняємось на ній (за логікою винятку).
+    if (nextDayKey === 'friday') {
+      console.log('Дійшли до п\'ятниці, зупиняємось на ній.');
+      scrollToDay('friday');
+      return;
+    }
+
+    // Якщо знайшли день з парами (і це НЕ п'ятниця)
+    if (dayHasClasses(nextDayKey)) {
+      console.log('Знайдено наступний день з парами:', nextDayKey);
+      scrollToDay(nextDayKey);
+      return; // Знайшли!
+    }
+    
+    nextDayIndex = (nextDayIndex + 1) % 7; // Йдемо далі по колу
+  }
+  
+  // Якщо ми пройшли все коло і нічого не знайшли (весь тиждень порожній),
+  // просто відкриваємо понеділок.
+  console.log('Весь тиждень порожній. Відкриваємо понеділок.');
+  scrollToDay('monday');
+}
     saveSettings();
     // generateReports(); // Можна викликати рідше
 }
@@ -839,14 +918,17 @@ function handleUpdateModal() {
   });
 }
 // --- Кінець блоку модального вікна ---
+// ...
+  initModal(); // Ініціалізуємо модальне вікно
+  handleUpdateModal(); 
+  console.log("Modal initialized.");
 
-    console.log("Modal initialized.");
+  // Перший запуск фільтрації ПІСЛЯ того, як всі елементи створено
+  filterSchedule();
+  console.log("Initial filter applied.");
 
-    // Перший запуск фільтрації ПІСЛЯ того, як всі елементи створено
-    filterSchedule();
-    console.log("Initial filter applied.");
-
-    highlightToday(); // Виділяємо сьогоднішній день
+  highlightToday(); // Виділяємо сьогоднішній день
+  scrollToCorrectDay();
     updateNavText(); // Оновлюємо текст навігації
     generateReports(); // Генеруємо звіти
     console.log("UI updated.");
@@ -945,6 +1027,7 @@ window.addEventListener('load', () => {
     
   }
 });
+
 
 
 
