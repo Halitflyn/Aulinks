@@ -8,7 +8,7 @@ const CACHE_NAME = 'schedule-cache-v1';
 const FILES_TO_CACHE = [
     './', // Головна сторінка (index.html)
     'index.html',
-    'style-v2.css', // !!! ВАЖЛИВО: Якщо твій CSS називається style.css, зміни це тут
+    'style.css', // !!! ВАЖЛИВО: Якщо твій CSS називається style.css, зміни це тут
     'script.js',
     'editor.html', // Додаємо редактор, щоб він теж працював офлайн
     'https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap' // Шрифти
