@@ -669,5 +669,71 @@ footer[style*="text-align: center"] {
     font-size: 0.9em;
 }
 
+/* === Фіксована панель оновлення (замість навігації) === */
+#update-bar {
+  /* Позиціонування - таке саме, як у твоєї <nav> */
+  position: sticky;
+  top: 0;
+  background: var(--bg-primary);
+  padding: 10px 15px;
+  z-index: 100;
+  border-bottom: 1px solid var(--border-color);
+
+  /* Flexbox для вирівнювання */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 15px;
+  width: 100%;
+  box-sizing: border-box; /* Важливо для 100% width + padding */
+
+  animation: fadeInModal 0.3s;
+}
+
+#update-bar p {
+  margin: 0;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-size: 0.9em;
+}
+
+/* Стиль кнопки: "овальна синя з чорним текстом" */
+#update-bar #update-now-btn {
+  background-color: var(--accent-primary); /* #3f51b5 (синій) */
+  color: #000000; /* Чорний текст, як ти просив */
+  border: none;
+  border-radius: 9999px; /* Робить її овальною */
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: transform 0.2s, background-color 0.3s;
+}
+
+#update-bar #update-now-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Темна тема (кнопка) */
+body.dark-mode #update-bar #update-now-btn {
+  background-color: var(--accent-primary); /* #fff176 (твій жовтий) */
+  color: #000000; /* Чорний текст */
+}
+
+/* Адаптивність для панелі */
+@media (max-width: 600px) {
+  #update-bar {
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px 10px;
+  }
+  #update-bar p {
+    font-size: 0.85em;
+  }
+  #update-bar #update-now-btn {
+    padding: 6px 14px;
+    font-size: 13px;
+  }
+}
 
 
