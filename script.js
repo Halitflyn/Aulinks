@@ -179,12 +179,13 @@ function generateNavigation() {
     const nav = document.getElementById('navigation');
     if (!nav || !scheduleData?.schedule) return;
     const days = Object.keys(scheduleData.schedule);
-    nav.innerHTML = days.map(dayKey => {
-        const dayName = scheduleData.schedule[dayKey]?.name || dayKey;
-        const shortName = getShortDayName(dayName);
-        return `<a href="#" onclick="scrollToDay('${dayKey}'); return false;"
-                  data-full="${dayName}" data-short="${shortName}">${dayName}</a>`;
-    }).join('');
+nav.innerHTML = days.map(dayKey => {
+    const dayName = scheduleData.schedule[dayKey]?.name || dayKey;
+    const shortName = getShortDayName(dayName);
+    // Прибрали onclick, додали data-day-id
+    return `<a href="#" data-day-id="${dayKey}"
+              data-full="${dayName}" data-short="${shortName}">${dayName}</a>`;
+}).join('');
 }
 function getShortDayName(fullName) {
     const shortNames = { 'Понеділок': 'ПН', 'Вівторок': 'ВТ', 'Середа': 'СР', 'Четвер': 'ЧТ', 'П\'ятниця': 'ПТ' };
@@ -736,9 +737,21 @@ async function initApp() {
     const titleEl = document.getElementById('schedule-title');
     if (titleEl) titleEl.textContent = `Розклад занять`;
 
-    generateNavigation();
-    console.log("Navigation generated.");
-    generateSchedule();
+generateNavigation();
+console.log("Navigation generated.");
+document.getElementById('navigation').addEventListener('click', (event) => {
+    // Знаходимо, чи був клік саме по посиланню, яке нас цікавить
+    const link = event.target.closest('a[data-day-id]');
+
+    if (link) {
+        event.preventDefault(); // Забороняємо посиланню стрибати наверх
+        const dayId = link.dataset.dayId; // Беремо ID дня з data-атрибута
+
+        // Викликаємо нашу функцію scrollToDay (зсередини модуля це працює!)
+        scrollToDay(dayId);
+    }
+});
+generateSchedule();
     console.log("Schedule generated.");
 
     // Обробники подій
@@ -869,4 +882,5 @@ window.addEventListener('load', () => {
             });
     }
 });
+
 
