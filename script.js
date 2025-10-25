@@ -765,6 +765,68 @@ async function initApp() {
     console.log("Event listeners added.");
 
     initModal(); // Ініціалізуємо модальне вікно
+    handleUpdateModal(); // <--- ДОДАЙТЕ ЦЕЙ РЯДОК
+    console.log("Modal initialized.");
+
+    // Перший запуск фільтрації ПІСЛЯ того, як всі елементи створено
+    filterSchedule();
+
+// --- Модальне вікно "Що нового" ---
+function handleUpdateModal() {
+  // 1. Знаходимо елементи
+  const updateModal = document.getElementById('updateModal');
+  const closeUpdateBtn = document.getElementById('closeUpdateBtn');
+
+  // Якщо елементи не знайдені, нічого не робимо
+  if (!updateModal || !closeUpdateBtn) {
+    console.warn('Елементи модального вікна оновлень не знайдені.');
+    return; 
+  }
+
+  // 2. Встановлюємо ключові змінні
+  const storageKey = 'seenUpdate_Oct2025_v1'; // Унікальний ключ для цього оновлення
+  // 29 Жовтня 2025, 23:59:59 (місяці в JS рахуються з 0, тому 9 = Жовтень)
+  const deadline = new Date(2025, 9, 29, 23, 59, 59); 
+  const today = new Date(); // Сьогодні 25.10.2025
+
+  // 3. Перевіряємо, чи бачив користувач це вікно
+  const hasSeenPopup = localStorage.getItem(storageKey);
+
+  // 4. ГОЛОВНА ЛОГІКА:
+  //    Показуємо, якщо:
+  //    а) Сьогоднішня дата ще НЕ пізніша за дедлайн
+  //    б) Користувач ще НЕ бачив це вікно (!hasSeenPopup)
+  if (today <= deadline && !hasSeenPopup) {
+    updateModal.style.display = 'block'; // Показуємо вікно
+  }
+
+  // 5. Функція, яка закриває вікно і зберігає позначку
+  const closeAndMarkAsSeen = () => {
+    updateModal.style.display = 'none'; // Ховаємо вікно
+
+    // ВАЖЛИВО: Зберігаємо позначку в localStorage
+    try {
+      localStorage.setItem(storageKey, 'true');
+    } catch (e) {
+      console.error('Не вдалося зберегти в localStorage:', e);
+    }
+  };
+
+  // 6. Додаємо обробники подій для закриття
+
+  // Закриття по натисканню на 'х'
+  closeUpdateBtn.addEventListener('click', closeAndMarkAsSeen);
+
+  // (Як у вашій функції initModal) Закриття по кліку на темний фон
+  updateModal.addEventListener('click', (event) => {
+    // Якщо клікнули саме на фон (а не на вміст вікна)
+    if (event.target === updateModal) {
+      closeAndMarkAsSeen();
+    }
+  });
+}
+// --- Кінець блоку модального вікна ---
+
     console.log("Modal initialized.");
 
     // Перший запуск фільтрації ПІСЛЯ того, як всі елементи створено
@@ -807,3 +869,4 @@ window.addEventListener('load', () => {
             });
     }
 });
+
