@@ -870,17 +870,81 @@ const minuteUpdater = setInterval(() => {
 // Обробка зміни розміру екрану
 window.addEventListener('resize', updateNavText);
 
-// Реєструємо Service Worker, коли сторінка завантажилась
+// === НОВИЙ КОД (ВСТАВ ЗАМІСТЬ СТАРОГО) ===
 window.addEventListener('load', () => {
-    if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.register('./sw.js')
-            .then((registration) => {
-                console.log('Service Worker зареєстровано успішно:', registration);
-            })
-            .catch((error) => {
-                console.error('Помилка реєстрації Service Worker:', error);
-            });
+  if ('serviceWorker' in navigator) {
+    
+    let waitingServiceWorker; // Змінна для збереження "очікуючого" SW
+    let isReloading = false; // Прапорець, щоб уникнути подвійного перезавантаження
+
+    // 1. Знаходимо елементи (нову панель оновлення ТА стару навігацію)
+    const updateBar = document.getElementById('update-bar');
+    const updateButton = document.getElementById('update-now-btn');
+    const navigation = document.getElementById('navigation'); // Твоя навігація (Пн, Вт...)
+
+    // 2. Логіка кнопки "Оновити"
+    if (updateButton && updateBar) {
+      updateButton.addEventListener('click', () => {
+        if (waitingServiceWorker) {
+          console.log('[App] Користувач натиснув "Оновити". Надсилаємо команду SKIP_WAITING...');
+          
+          // Надсилаємо команду Service Worker'у, щоб він активувався
+          waitingServiceWorker.postMessage({ type: 'SKIP_WAITING' });
+          updateBar.style.display = 'none'; // Ховаємо панель оновлення
+        }
+      });
     }
+
+    // 3. Функція, що відстежує оновлення
+    const trackUpdates = (registration) => {
+      registration.addEventListener('updatefound', () => {
+        console.log('[App] Знайдено оновлення! Встановлюємо...');
+        
+        const newWorker = registration.installing;
+
+        newWorker.addEventListener('statechange', () => {
+          console.log('[App] Стан нового SW змінився:', newWorker.state);
+          
+          // Коли новий SW успішно встановився і ЧЕКАЄ на активацію
+          if (newWorker.state === 'installed') {
+            // Перевіряємо, чи сторінка вже контролюється (тобто це оновлення)
+            if (navigator.serviceWorker.controller) {
+              console.log('[App] Новий SW очікує. Блокуємо навігацію.');
+              waitingServiceWorker = newWorker; // Зберігаємо його
+              
+              // === ГОЛОВНА ЛОГІКА (ЯК ТИ ХОТІВ) ===
+              if (navigation) navigation.style.display = 'none'; // Ховаємо навігацію
+              if (updateBar) updateBar.style.display = 'flex'; // Показуємо твою панель!
+            }
+          }
+        });
+      });
+    };
+
+    // 4. Реєструємо Service Worker
+    navigator.serviceWorker.register('./sw.js')
+      .then((registration) => {
+        console.log('Service Worker зареєстровано успішно:', registration);
+        
+        // Запускаємо відстеження оновлень
+        trackUpdates(registration);
+      })
+      .catch((error) => {
+        console.error('Помилка реєстрації Service Worker:', error);
+      });
+
+    // 5. Слухач для перезавантаження
+    // Спрацьовує, коли новий SW (після SKIP_WAITING) стає "головним"
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      console.log('[App] Контролер змінився! Перезавантажуємо сторінку...');
+      if (!isReloading) {
+        window.location.reload();
+        isReloading = true;
+      }
+    });
+    
+  }
 });
+
 
 
