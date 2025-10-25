@@ -1,7 +1,7 @@
 /* --- Service Worker --- */
 
 // Назва нашого кешу. Зміни v1 на v2, v3 і т.д., коли захочеш повністю оновити кеш
-const CACHE_NAME = 'schedule-cache-v1';
+const CACHE_NAME = 'schedule-cache-v2';
 
 // Список файлів, які треба завантажити в кеш "наперед"
 // Це "оболонка" твого додатку
@@ -93,4 +93,13 @@ self.addEventListener('fetch', (event) => {
             return fetch(event.request);
         })
     );
+});
+// 4. Етап "Повідомлення" (Message)
+// Слухаємо команди з головного скрипту (script.js)
+self.addEventListener('message', (event) => {
+  // Якщо команда - 'SKIP_WAITING', то ми негайно активуємось
+  if (event.data && event.data.type === 'SKIP_WAITING') {
+    console.log('[SW] Отримано команду SKIP_WAITING. Активуємось!');
+    self.skipWaiting();
+  }
 });
