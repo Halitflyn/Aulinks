@@ -357,7 +357,7 @@ function filterSchedule() {
 
     updateWeekInfo();
     highlightCurrentPair();
-  // --- Допоміжна функція: Перевіряє, чи є пари в цей день ---
+// --- Допоміжна функція: Перевіряє, чи є пари в цей день ---
 function dayHasClasses(dayKey) {
   // Перевіряємо, чи існує такий день в нашому JSON
   if (!scheduleData || !scheduleData.schedule || !scheduleData.schedule[dayKey]) {
@@ -1027,6 +1027,7 @@ window.addEventListener('load', () => {
     
   }
 });
+
 
 
 
