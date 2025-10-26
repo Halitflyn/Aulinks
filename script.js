@@ -250,7 +250,7 @@ function generateLessonCard(lesson, dayKey) {
     } else if (lesson.subject) {
         mainContent = `
           <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
-          <p class="teacher-room">${lesson.teacher || ''}${lesson.room ? ', ' + sub.room : ''}</p>`;
+          <p class="teacher-room">${lesson.teacher || ''}${lesson.room ? ', ' + lesson.room : ''}</p>
     }
     return `
       <article class="${cardClass}" id="${lessonId}">
@@ -1053,3 +1053,4 @@ window.addEventListener('load', () => {
     
   }
 });
+
