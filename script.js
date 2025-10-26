@@ -221,44 +221,70 @@ function generateSchedule() {
 
 /** Генерує HTML-картку для однієї пари */
 function generateLessonCard(lesson, dayKey) {
-    if (!lesson) return '';
+    if (!lesson) return ''; // Вихід, якщо дані пари відсутні
+
+    // Визначаємо, чи є у пари деталі для підгруп
     const hasSubgroups = Array.isArray(lesson.subgroups) && lesson.subgroups.length > 0;
+    // Визначаємо, чи вважається пара "порожньою" (немає основного предмету І немає підгруп)
     const isEmpty = (lesson.type === 'empty' || !lesson.subject) && !hasSubgroups;
+
+    // Базовий CSS клас для картки
     let cardClass = isEmpty ? 'card empty' : `card ${lesson.type || 'unknown'}`;
+    // Додаємо класи для чисельника/знаменника, якщо це не урок з підгрупами
     if (!hasSubgroups && lesson.weeks && (lesson.weeks === 'num' || lesson.weeks === 'den')) {
         cardClass += ` numden ${lesson.weeks}`;
     }
+
+    // Генеруємо унікальний ID для елемента картки уроку
     const lessonId = `lesson-${dayKey}-${lesson.number || '?'}`;
+
+    // --- Генеруємо HTML залежно від типу уроку ---
+
+    // 1. Якщо урок повністю порожній
     if (isEmpty) {
         return `<article class="${cardClass}" id="${lessonId}"><h3>${lesson.number || '?'} пара</h3><p class="empty-message">Немає</p></article>`;
     }
-    let subgroupsHtml = ''; let mainContent = '';
+
+    // Готуємо змінні для основного контенту та HTML підгруп
+    let subgroupsHtml = '';
+    let mainContent = '';
+
+    // 2. Якщо урок має деталі для підгруп
     if (hasSubgroups) {
         subgroupsHtml = lesson.subgroups.map(sub => {
-            if (!sub) return '';
-            const subClass = getSubgroupClass(sub); const subLabel = getSubgroupLabel(sub);
+            if (!sub) return ''; // Пропускаємо невалідні дані підгрупи
+            const subClass = getSubgroupClass(sub); // напр., "numden num sub1"
+            const subLabel = getSubgroupLabel(sub); // напр., "Підгрупа 1"
             let weekLabel = '';
             if (sub.weeks === 'num') weekLabel = '<span class="week-label num-label"> (Чисельник)</span>';
             else if (sub.weeks === 'den') weekLabel = '<span class="week-label den-label"> (Знаменник)</span>';
+
+            // HTML для одного запису підгрупи
             return `
               <div class="subgroup ${subClass}">
                 <p class="subgroup-label">${subLabel}${weekLabel}</p>
                 <p><b>${sub.subject || '?'}</b> (${getTypeLabel(sub.type)})</p>
-                <p class="teacher-room">${sub.teacher || ''}${sub.room ? ', ' + sub.room : ''}</p>
-              </div>`;
-        }).join('');
+                <p class="teacher-room">${sub.teacher || ''}${sub.room ? ', ' + sub.room : ''}</p> 
+              </div>`; // Використовуємо sub.teacher та sub.room тут
+        }).join(''); // Об'єднуємо всі HTML рядки підгруп разом
+    
+    // 3. Якщо урок має основний предмет (і немає підгруп)
     } else if (lesson.subject) {
         mainContent = `
           <p data-main-content="true"><b>${lesson.subject}</b> (${getTypeLabel(lesson.type)})</p>
-          <p class="teacher-room">${lesson.teacher || ''}${lesson.room ? ', ' + lesson.room : ''}</p>
+          <p class="teacher-room">${lesson.teacher || ''}${lesson.room ? ', ' + lesson.room : ''}</p>`; // Використовуємо lesson.room тут
     }
+
+    // --- Об'єднуємо всі частини в фінальний HTML картки ---
+    // Цей return, ймовірно, є рядком ~256
     return `
       <article class="${cardClass}" id="${lessonId}">
         <h3>
           ${lesson.number || '?'} пара
           <button class="cancel-btn" title="Скасувати/повернути пару" data-lesson-id="${lessonId}">❌</button>
         </h3>
-        ${mainContent}${subgroupsHtml}
+        ${mainContent}
+        ${subgroupsHtml}
         <p class="time">${lesson.time || '??:?? - ??:??'}</p>
       </article>`;
 }
@@ -1053,4 +1079,5 @@ window.addEventListener('load', () => {
     
   }
 });
+
 
