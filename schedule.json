@@ -1,7 +1,7 @@
 {
   "group": "ІВ-12",
   "semester": "1 семестр 2024-2025",
-  "startDate": "2025-10-20",
+  "startDate": "2025-10-27",
   "schedule": {
     "monday": {
       "name": "Понеділок",
@@ -290,12 +290,21 @@
         {
           "number": 4,
           "time": "13:15 – 14:35",
-          "subject": "Інженерна та комп`ютерна графіка",
-          "type": "lab",
-          "teacher": "Комаров С.М.",
-          "room": "109 IV н.к.",
+          "subject": "",
+          "type": "mixed",
+          "teacher": "",
+          "room": "",
           "weeks": "all",
-          "subgroups": []
+          "subgroups": [
+            {
+              "group": "all",
+              "weeks": "num",
+              "subject": "Інженерна та комп`ютерна графіка",
+              "type": "lab",
+              "teacher": "Комаров С.М.",
+              "room": "109 IV н.к."
+            }
+          ]
         },
         {
           "number": 5,
