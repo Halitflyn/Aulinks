@@ -1,128 +1,155 @@
 <!DOCTYPE html>
 <html lang="uk">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#f4f6fa"> 
-    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101014">
-    <title>Розклад занять</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#f4f6fa">
+  <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#101014">
+  <title>Розклад занять</title>
 
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='10 10 80 80'><g transform='rotate(-6 33 32.5)'><rect width='30' height='25' x='19' y='21' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='18' y='20' rx='3' fill='%233f51b5'/></g><g transform='rotate(8 67 67.5)'><rect width='30' height='25' x='53' y='56' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='52' y='55' rx='3' fill='%23fff176'/><circle cx='67' cy='58' r='5' fill='%23e53935'/><circle cx='68.5' cy='57' r='1.5' fill='%23ffcdd2'/></g></svg>" media="(prefers-color-scheme: light)">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='10 10 80 80'><g transform='rotate(-6 33 32.5)'><rect width='30' height='25' x='19' y='21' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='18' y='20' rx='3' fill='%2381d4fa'/></g><g transform='rotate(8 67 67.5)'><rect width='30' height='25' x='53' y='56' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='52' y='55' rx='3' fill='%23fff176'/><circle cx='67' cy='58' r='5' fill='%23e53935'/><circle cx='68.5' cy='57' r='1.5' fill='%23ffcdd2'/></g></svg>" media="(prefers-color-scheme: dark)">
-    
-    <link rel="manifest" href="manifest.json">
-    
-    <link rel="stylesheet" href="./style.css">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='10 10 80 80'><g transform='rotate(-6 33 32.5)'><rect width='30' height='25' x='19' y='21' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='18' y='20' rx='3' fill='%233f51b5'/></g><g transform='rotate(8 67 67.5)'><rect width='30' height='25' x='53' y='56' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='52' y='55' rx='3' fill='%23fff176'/><circle cx='67' cy='58' r='5' fill='%23e53935'/><circle cx='68.5' cy='57' r='1.5' fill='%23ffcdd2'/></g></svg>"
+    media="(prefers-color-scheme: light)">
+  <link rel="icon"
+    href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='10 10 80 80'><g transform='rotate(-6 33 32.5)'><rect width='30' height='25' x='19' y='21' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='18' y='20' rx='3' fill='%2381d4fa'/></g><g transform='rotate(8 67 67.5)'><rect width='30' height='25' x='53' y='56' rx='3' fill='%23000' opacity='0.2'/><rect width='30' height='25' x='52' y='55' rx='3' fill='%23fff176'/><circle cx='67' cy='58' r='5' fill='%23e53935'/><circle cx='68.5' cy='57' r='1.5' fill='%23ffcdd2'/></g></svg>"
+    media="(prefers-color-scheme: dark)">
+
+  <link rel="manifest" href="manifest.json">
+
+  <link rel="stylesheet" href="./style.css">
 </head>
+
 <body>
-    <button class="theme-toggle purple" id="themeBtn"></button>
+  <button class="theme-toggle purple" id="themeBtn"></button>
 
-    <div id="update-bar" style="display: none;">
-      <p>Доступна нова версія сайту!</p>
-      <button id="update-now-btn">Оновити</button>
-    </div>
-    <nav id="navigation">
-        </nav>
-
-    <div id="loading" class="loading">
-        <div class="spinner"></div>
-        <p>Завантаження розкладу...</p>
-    </div>
-
-    <main id="schedule-container" style="display: none;">
-        </main>
-
-    <footer>
-        <h1 id="schedule-title">Розклад занять</h1>
-
-        <div class="filters main-filters">
-            <button id="showNextWeekBtn" class="toggle-button" title="Показати наступний тиждень">Тиждень</button>
-            <span id="currentWeekInfo"></span>
-            <button id="toggleFiltersBtn" class="settings-btn" title="Додаткові фільтри">⚙️ Фільтри</button>
-            <button id="openModalBtn" class="settings-btn" title="Керування розкладом">📁 Керування</button>
-        </div>
-
-        <div id="advancedFiltersPanel" class="filters advanced-filters" style="display: none;">
-            <label>Підгрупа: </label>
-            <select id="subgroupFilter">
-                <option value="all">Усі</option>
-                <option value="sub1">Підгрупа 1</option>
-                <option value="sub2">Підгрупа 2</option>
-            </select>
-            <label>
-                <input type="checkbox" id="showAllWeeks"> Показати всі тижні
-            </label>
-            <label>
-                <input type="checkbox" id="hideEmptyLessons"> Приховати порожні пари
-            </label>
-        </div>
-
-        <div class="reports">
-            <h3>📊 Статистика</h3>
-            <div class="stats-grid">
-                <div class="stat-card">
-                    <div class="stat-number" id="totalLessons">0</div>
-                    <div class="stat-label">Всього пар на тиждень</div>
-                </div>
-            </div>
-            <div class="subjects-report">
-                <h4>📚 Предмети по типах занять</h4>
-                <div id="subjectsBreakdown"></div>
-            </div>
-        </div>
-    </footer>
-
-    <div class="modal" id="updateModal">
-  <div class="modal-content">
-    <span class="modal-close" id="closeUpdateBtn">&times;</span>
-    <h2>🎉 Сайт оновлено!</h2>
-    <p>Привіт! Я значно оновив сайт розкладу, щоб зробити його зручнішим. Ось головні зміни:</p>
-    
-    <ul style="text-align: left; margin-top: 10px; line-height: 1.6;">
-      <li>Повністю новий дизайн карток та фільтрів.</li>
-      <li>Нова іконка сайту (дошка зі стікерами).</li>
-      <li>Додано "Редактор розкладу" (кнопка "📁 Керування").</li>
-      <li>Нова "плаваюча" кнопка (справа) для теми та статусу пар.</li>
-      <li>Можливість скасовувати пари (кнопка '❌' на картці).</li>
-    </ul>
-
-    <p style="text-align: left; margin-top: 15px;">
-      До речі, стара версія сайту все ще доступна 
-      <a href="https://halitflyn.github.io/Aulinksmini/" target="_blank" rel="noopener noreferrer">ось тут</a>.
-    </p>
-    <p style="margin-top: 15px; font-weight: bold; color: var(--text-secondary);">
-      Це вікно з'явиться лише один раз. Гарного користування!
-    </p>
+  <div id="update-bar" style="display: none;">
+    <p>Доступна нова версія сайту!</p>
+    <button id="update-now-btn">Оновити</button>
   </div>
-</div>
-    <div class="modal" id="settingsModal">
-      <div class="modal-content">
-        <span class="modal-close" id="modalClose">&times;</span>
-        <h2>Керування розкладом</h2>
-        <p>Ви можете імпортувати свій файл <code>schedule.json</code> або експортувати поточний як шаблон.</p>
-        <div class="modal-actions">
-          <input type="file" id="importFile" accept=".json" style="display: none;">
-          <a href="./editor.html" class="modal-btn editor" style="text-align: center; text-decoration: none;">Редактор розкладу</a>
-          <button class="modal-btn import" id="importBtn">Імпорт (.json)</button>
-          <button class="modal-btn export" id="exportBtn">Експорт (Шаблон)</button>
-          <button class="modal-btn delete" id="deleteBtn">Видалити мій розклад</button>
+  <nav id="navigation">
+  </nav>
+
+  <div id="loading" class="loading">
+    <div class="spinner"></div>
+    <p>Завантаження розкладу...</p>
+  </div>
+
+  <main id="schedule-container" style="display: none;">
+  </main>
+
+  <footer>
+    <h1 id="schedule-title">Розклад занять</h1>
+
+    <div class="filters main-filters">
+      <button id="showNextWeekBtn" class="toggle-button" title="Показати наступний тиждень">Тиждень</button>
+      <span id="currentWeekInfo"></span>
+      <button id="toggleFiltersBtn" class="settings-btn" title="Додаткові фільтри">⚙️ Фільтри</button>
+      <button id="openModalBtn" class="settings-btn" title="Керування розкладом">📁 Керування</button>
+    </div>
+
+    <div id="advancedFiltersPanel" class="filters advanced-filters" style="display: none;">
+      <label>Підгрупа: </label>
+      <select id="subgroupFilter">
+        <option value="all">Усі</option>
+        <option value="sub1">Підгрупа 1</option>
+        <option value="sub2">Підгрупа 2</option>
+      </select>
+      <label>
+        <input type="checkbox" id="showAllWeeks"> Показати всі тижні
+      </label>
+      <label>
+        <input type="checkbox" id="hideEmptyLessons"> Приховати порожні пари
+      </label>
+      <label>
+        <input type="checkbox" id="disableUpdates"> Відключити оновлення
+      </label>
+      <label>
+        <input type="checkbox" id="hideTotalLessons"> Приховати "Пар на тиждень"
+      </label>
+      <label>
+        <input type="checkbox" id="hideSubjectsType"> Приховати "Типи предметів"
+      </label>
+      <label>
+        <input type="checkbox" id="hideDonate"> Приховати "Донат"
+      </label>
+    </div>
+
+    <div class="reports">
+      <div class="subjects-report" id="subjectsReportContainer">
+        <h4>📚 Предмети по типах занять</h4>
+        <div id="subjectsBreakdown"></div>
+      </div>
+
+      <!-- Statistics and Donate Section -->
+      <div class="bottom-stats-row">
+        <div class="stat-card" id="totalLessonsCard">
+          <div class="stat-info">
+            <div class="stat-number" id="totalLessons">0</div>
+            <div class="stat-label">Пар на тиждень</div>
+          </div>
         </div>
-        <div id="importStatus"></div>
+        <button class="donate-btn" id="donateBtn">💜 Донат</button>
       </div>
     </div>
+  </footer>
 
-    <script type="module" src="./script.js"></script>
+  <div class="modal" id="updateModal">
+    <div class="modal-content">
+      <span class="modal-close" id="closeUpdateBtn">&times;</span>
+      <h2>🎉 Сайт оновлено!</h2>
+      <p>Привіт! Я значно оновив сайт розкладу, щоб зробити його зручнішим. Ось головні зміни:</p>
 
-    <footer style="text-align: center; padding: 10px; margin-top: 20px;">
-        <p>Сайт створив Halitflyn © 2025</p>
-    </footer>
+      <ul style="text-align: left; margin-top: 10px; line-height: 1.6;">
+        <li>Повністю новий дизайн карток та фільтрів.</li>
+        <li>Нова іконка сайту (дошка зі стікерами).</li>
+        <li>Додано "Редактор розкладу" (кнопка "📁 Керування").</li>
+        <li>Нова "плаваюча" кнопка (справа) для теми та статусу пар.</li>
+        <li>Можливість скасовувати пари (кнопка '❌' на картці).</li>
+      </ul>
+
+      <p style="text-align: left; margin-top: 15px;">
+        До речі, стара версія сайту все ще доступна
+        <a href="https://halitflyn.github.io/Aulinksmini/" target="_blank" rel="noopener noreferrer">ось тут</a>.
+      </p>
+      <p style="margin-top: 15px; font-weight: bold; color: var(--text-secondary);">
+        Це вікно з'явиться лише один раз. Гарного користування!
+      </p>
+    </div>
+  </div>
+  <div class="modal" id="settingsModal">
+    <div class="modal-content">
+      <span class="modal-close" id="modalClose">&times;</span>
+      <h2>Керування розкладом</h2>
+      <p>Ви можете імпортувати свій файл <code>schedule.json</code> або експортувати поточний як шаблон.</p>
+      <div class="modal-actions">
+        <input type="file" id="importFile" accept=".json" style="display: none;">
+        <a href="./editor.html" class="modal-btn editor" style="text-align: center; text-decoration: none;">Редактор
+          розкладу</a>
+        <button class="modal-btn import" id="importBtn">Імпорт (.json)</button>
+        <button class="modal-btn export" id="exportBtn">Експорт (Шаблон)</button>
+        <button class="modal-btn delete" id="deleteBtn">Видалити мій розклад</button>
+      </div>
+      <div id="importStatus"></div>
+    </div>
+  </div>
+
+  <!-- Donate Modal -->
+  <div class="modal" id="donateModal">
+    <div class="modal-content donate-modal-content">
+      <span class="close-donate" id="closeDonateBtn">&times;</span>
+      <img src="./image/Donat.jpg" alt="Підтримати проєкт" class="donate-image">
+      <a href="https://send.monobank.ua/jar/425Aht8D9N" target="_blank" rel="noopener noreferrer"
+        class="monobank-btn">Відкрити Monobank</a>
+    </div>
+  </div>
+
+  <script type="module" src="./script.js"></script>
+
+  <footer style="text-align: center; padding: 10px; margin-top: 20px;">
+    <p>Сайт створив Halitflyn © 2025</p>
+  </footer>
 </body>
+
 </html>
-
-
-
-
-
-
-
 
